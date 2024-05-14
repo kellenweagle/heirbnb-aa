@@ -468,7 +468,7 @@ Create and return a new image for a spot specified by id.
 * Require proper authorization: Spot must belong to the current user
 * Request
   * Method: POST
-  * URL: /spots/:spotId/spotImg
+  * URL: /spots/:spotId/spotImgs
   * Headers:
     * Content-Type: application/json
   * Body:
@@ -824,8 +824,8 @@ Create and return a new image for a review specified by id.
 * Require Authentication: true
 * Require proper authorization: Review must belong to the current user
 * Request
-  * Method: PUT
-  * URL: /reviews/:reviewId/reviewImg
+  * Method: POST
+  * URL: /reviews/:reviewId/reviewImgs
   * Headers:
     * Content-Type: application/json
   * Body:
