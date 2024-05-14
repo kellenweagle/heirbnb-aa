@@ -2,7 +2,9 @@
 
 ## Database Schema Design
 
-![MY DB SCHEMA](heirbnb.png)
+![db-schema]
+
+[db-schema]: ./images/heirbnb.png
 
 ## API Documentation
 
