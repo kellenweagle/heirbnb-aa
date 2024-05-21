@@ -91,4 +91,12 @@ router.get(
   }
 );
 
+router.get('/', (req, res) => {
+  const {user} = req.params
+
+  if(user) {
+    
+  }
+})
+
 module.exports = router;

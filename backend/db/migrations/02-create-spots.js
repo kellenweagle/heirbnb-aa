@@ -18,18 +18,46 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
-      username: {
+      ownerId: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      address: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        unique: true
+      },
+      city: {
+        type: Sequelize.STRING(50),
+        allowNull: false
+      },
+      state: {
         type: Sequelize.STRING(30),
         allowNull: false,
-        unique: true
       },
-      email: {
-        type: Sequelize.STRING(256),
+      country: {
+        type: Sequelize.STRING(50),
+        allowNull: false
+      },
+      lat: {
+        type: Sequelize.DECIMAL,
+        allowNull: false
+      },
+      lng: {
+        type: Sequelize.DECIMAL,
+        allowNull: false
+      },
+      name: {
+        type: Sequelize.STRING(50),
         allowNull: false,
         unique: true
       },
-      hashedPassword: {
-        type: Sequelize.STRING.BINARY,
+      description: {
+        type: Sequelize.STRING(250),
+        allowNull: false
+      },
+      price: {
+        type: Sequelize.DECIMAL,
         allowNull: false
       },
       createdAt: {
