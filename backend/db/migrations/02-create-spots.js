@@ -11,7 +11,7 @@ const { now } = require('sequelize/lib/utils');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('Spots', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -19,8 +19,7 @@ module.exports = {
         primaryKey: true,
       },
       ownerId: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       address: {
         type: Sequelize.STRING(100),
@@ -73,7 +72,7 @@ module.exports = {
     }, options);
   },
   async down(queryInterface, Sequelize) {
-    options.tableName = "Users";
+    options.tableName = "Spots";
     return queryInterface.dropTable(options);
   }
 };
