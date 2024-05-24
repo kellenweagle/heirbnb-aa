@@ -5,7 +5,8 @@ const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
-const { Spot } = require('../../db/models');
+const { Spot, User } = require('../../db/models');
+const user = require('../../db/models/user');
 
 const router = express.Router();
 
@@ -62,12 +63,52 @@ router.get('/', async(req, res, next) => {
         description: spot.description,
         price: spot.price,
         createdAt: spot.createdAt,
-        updatedAt: spot.updatedAt
+        updatedAt: spot.updatedAt,
+        avgRating: 4,
+        previewImage: "image url"
       })
     }
     res.json({Spots: spotArr})
   } catch (e) {
     next (e)
+  }
+})
+
+router.get('/current', async(req, res, next) => {
+  try {
+
+    const user = req.user
+
+    const spots = await Spot.findAll()
+
+    let spotArr = []
+
+    for(let spot of spots) {
+
+      if(user.id === spot.ownerId) {
+        spotArr.push({
+          id: spot.id,
+          ownerId: spot.id,
+          address: spot.address,
+          city: spot.city,
+          state: spot.state,
+          country: spot.country,
+          lat: spot.lat,
+          lng: spot.lng,
+          name: spot.name,
+          description: spot.description,
+          price: spot.price,
+          createdAt: spot.createdAt,
+          updatedAt: spot.updatedAt,
+          avgRating: 4,
+          previewImage: "image url"
+        })
+        
+        res.json({Spots: spotArr})
+      }
+    }
+  } catch(e) {
+    next(e)
   }
 })
 
