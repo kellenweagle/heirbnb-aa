@@ -24,7 +24,7 @@ module.exports = {
           lng: -122.4730327,
           name: "It a home",
           description: "This is where you can stay!",
-          price: 500,
+          price: 500
         },{
           ownerId: 2,
           address: "456 Home St",
@@ -35,7 +35,7 @@ module.exports = {
           lng: -170.4730327,
           name: "This is a home",
           description: "Wow a home!",
-          price: 1000,
+          price: 1000
         },{
           ownerId: 3,
           address: "789 Home St",
@@ -46,7 +46,7 @@ module.exports = {
           lng: -124.4730327,
           name: "A home!",
           description: "This is where you can visit!",
-          price: 1500,
+          price: 1500
         }
       ])
     } catch (e) {
