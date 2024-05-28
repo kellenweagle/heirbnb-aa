@@ -47,43 +47,6 @@ module.exports = {
           name: "A home!",
           description: "This is where you can visit!",
           price: 1500
-        },
-        {
-          ownerId: 4,
-          address: "123 Home Blvd",
-          city: "San Francisco",
-          state: "California",
-          country: "United States of America",
-          lat: 37.7645358,
-          lng: -122.4730327,
-          name: "A nice home",
-          description: "This place is a home!",
-          price: 200
-        }
-        ,
-        {
-          ownerId: 5,
-          address: "123 Blue Blvd",
-          city: "San Francisco",
-          state: "California",
-          country: "United States of America",
-          lat: 37.7645358,
-          lng: -122.4730327,
-          name: "A nice blue home",
-          description: "This place is a blue home!",
-          price: 200
-        },
-        {
-          ownerId: 6,
-          address: "123 Smart Blvd",
-          city: "San Francisco",
-          state: "California",
-          country: "United States of America",
-          lat: 37.7645358,
-          lng: -122.4730327,
-          name: "A smart home",
-          description: "This place is a smart home!",
-          price: 200
         }
       ])
     } catch (e) {
