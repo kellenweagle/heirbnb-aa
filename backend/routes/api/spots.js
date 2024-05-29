@@ -8,7 +8,7 @@ const CustomError = require('../../errors/errors')
 
 const { Op } = require('sequelize')
 
-const { Spot, User } = require('../../db/models');
+const { Spot, User, Review, ReviewImage, SpotImage } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 
 const router = express.Router();
@@ -80,6 +80,18 @@ const validateQueryParameters = [
     .withMessage("Maximum price must be greater than or equal to 0"),
   handleValidationErrors
 ];
+
+const validateReviews = [
+  check('review')
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1 })
+    .withMessage('Review text is required'),
+  check('stars')
+    .exists({ checkFalsy: true })
+    .isFloat({min: 1, max: 5})
+    .withMessage('Stars must be an integer from 1 to 5'),
+    handleValidationErrors
+]
 
 // get all spots
 router.get('/', validateQueryParameters, async(req, res, next) => {
@@ -184,10 +196,11 @@ router.get('/', validateQueryParameters, async(req, res, next) => {
 // get all spots of current user
 router.get('/current', requireAuth, async(req, res, next) => {
   try {
-
     const user = req.user
 
-    const spots = await Spot.findAll()
+    const spots = await Spot.findAll({
+      include: [{ model: Review, attributes: ['stars']}]
+    })
 
     let spotArr = []
 
@@ -211,14 +224,17 @@ router.get('/current', requireAuth, async(req, res, next) => {
           avgRating: 4,
           previewImage: "image url"
         })
+
+        res.json({Spots: spotArr})
+
       }
-      res.json({Spots: spotArr})
     }
   } catch(e) {
     next(e)
   }
 })
 
+// get details of a spot from an id
 router.get('/:spotId', async(req, res, next) => {
   try {
 
@@ -230,7 +246,23 @@ router.get('/:spotId', async(req, res, next) => {
       throw new CustomError("Spot couldn't be found", 404)
     }
 
-    const owner = await User.findByPk(spots.ownerId)
+    const owner = await User.findByPk(spots.ownerId);
+    const spotImages = await SpotImage.findAll({
+      where: {
+        spotId: spots.id
+      },
+      attributes: ['id', 'url', 'preview']
+    })
+
+    const reviews = await Review.findAll({
+      where: {spotId: spots.id}
+    })
+
+    let sum = 0;
+
+    for(let review of reviews) {
+      sum += review.stars
+    }
 
     if(owner) {
       let spotArr = []
@@ -249,20 +281,9 @@ router.get('/:spotId', async(req, res, next) => {
         price: spots.price,
         createdAt: spots.createdAt,
         updatedAt: spots.updatedAt,
-        numReviews: 5,
-        avgStarRating: 4.5,
-        SpotImages: [
-          {
-            "id": 1,
-            "url": "image url",
-            "preview": true
-          },
-          {
-            "id": 2,
-            "url": "image url",
-            "preview": false
-          }
-        ],
+        numReviews: reviews.length,
+        avgStarRating: sum / reviews.length,
+        SpotImages: spotImages,
         Owner: {
           id: owner.id,
           firstName: owner.firstName,
@@ -283,7 +304,7 @@ router.get('/:spotId', async(req, res, next) => {
 router.post('/', requireAuth, validateSpot, async(req, res, next) => {
   try {
 
-    const {address, city, state, country, lat, lng, name, description, price} = req.body
+    const {address, city, state, country, lat, lng, name, description, price} = req.body;
 
     const { user } = req;
 
@@ -291,6 +312,7 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
         const error = new CustomError ("Forbidden", 403);
         throw error
     }
+
     const newSpot = await Spot.create({
       ownerId: user.id,
       address,
@@ -380,6 +402,79 @@ router.delete('/:spotId', requireAuth, async(req, res, next) => {
   }
 })
 
+// get all reviews by a spot's id
+router.get('/:spotId/reviews', async(req, res, next) => {
+  try {
+    const id = req.params.spotId
+    const spot = await Spot.findByPk(id)
 
+    if(!spot) {
+      const error = new CustomError("Spot  couldn't be found", 404);
+      throw error
+    }
+
+    const reviews = await Review.findAll({
+      where: {
+        spotId: spot.id
+      },
+      include: [
+        {model: User, attributes: ['id', 'firstName', 'lastName']},
+        {model: ReviewImage, attributes: ['id', 'url']}
+      ]
+    })
+
+    res.json({Review: reviews})
+    
+  } catch(e) {
+    next(e)
+  }
+})
+
+// create a review for a spot based on the spots id
+router.post('/:spotId/reviews', requireAuth, validateReviews, async(req, res, next) => {
+  try{
+
+    const { review, stars } = req.body;
+    const { user } = req;
+    const id = req.params.spotId
+
+    const spot = await Spot.findByPk(id)
+
+    const alreadyReviewed = await Review.findAll({
+      where: {
+        spotId: spot.id,
+        userId: user.id
+      }
+    })
+
+    if(!user) {
+      const error = new CustomError ("Forbidden", 403);
+      throw error
+    }
+
+    if(!spot) {
+      const error = new CustomError ("Spot couldn't be found", 404);
+      throw error
+    }
+    
+    if(alreadyReviewed) {
+      const error = new CustomError ("User already has a review for this spot", 500);
+      throw error
+    }
+
+    const newReview = await Review.create({
+      userId: user.id,
+      spotId: spot.id,
+      review,
+      stars
+    })
+
+    res.json(newReview)
+
+  } catch(e) {
+    next(e)
+  }
+
+})
 
 module.exports = router;
