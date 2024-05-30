@@ -4,6 +4,8 @@ const { Review } = require('../models');
 const bcrypt = require("bcryptjs");
 
 let options = {};
+options.tableName = "Reviews";
+
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 }
@@ -85,7 +87,7 @@ module.exports = {
           review: "Im not impressed",
           stars: 3
         }
-      ])
+      ], { validate: true })
     } catch(e) {
       console.error(e)
     }
