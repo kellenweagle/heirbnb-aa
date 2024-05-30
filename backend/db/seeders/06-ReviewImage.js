@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-     await queryInterface.bulkInsert('ReviewImages', [
+     await queryInterface.bulkInsert(options, [
       {
        reviewId: 1,
        url: "https://hoangthaodecor.com/vnt_upload/news/06_2018/img1.jpg"
@@ -37,7 +37,7 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-     await queryInterface.bulkDelete('ReviewImages', null, {});
+     await queryInterface.bulkDelete(options, null, {});
      
   }
 };

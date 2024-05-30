@@ -11,7 +11,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-     await queryInterface.bulkInsert('SpotImages', [
+     await queryInterface.bulkInsert(options, [
       {
       spotId: 1,
       url: "https://wallpapers.com/images/high/nice-house-pictures-wiwo3snr72rar3h6.webp",
@@ -47,6 +47,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-     await queryInterface.bulkDelete('SpotImages', null, {});
+     await queryInterface.bulkDelete(options, null, {});
   }
 };
