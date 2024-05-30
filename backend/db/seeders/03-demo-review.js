@@ -80,7 +80,7 @@ module.exports = {
           stars: 2
         },
         {
-          userId: 1,
+          userId: 3,
           spotId: 6,
           review: "Im not impressed",
           stars: 3
