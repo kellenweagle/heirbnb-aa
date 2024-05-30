@@ -6,7 +6,6 @@ const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const CustomError = require('../../errors/errors')
 
-const { Op } = require('sequelize')
 
 const { Spot, User, Review, ReviewImage } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
@@ -44,6 +43,9 @@ router.get('/current', requireAuth, async(req, res, next) => {
       res.json({
           Reviews: reviews
       })
+    } else {
+      const error = new CustomError ("Forbidden", 403);
+      throw error
     }
   } catch(e) {
     next(e)
