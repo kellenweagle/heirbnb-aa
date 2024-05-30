@@ -115,4 +115,49 @@ router.delete('/:reviewId', requireAuth, async(req, res, next) => {
   }
 })
 
+// add an image to review based on review id
+router.post('/:reviewId/images', requireAuth, async(req, res, next) => {
+  try {
+    const id = req.params.reviewId
+    const {user} = req;
+
+    const { url } = req.body
+
+    const review = await Review.findByPk(id)
+    const reviewImages = await ReviewImage.findAll({
+      where: {
+        reviewId: id
+      }
+    })
+
+    if(!review) {
+      const error = new CustomError ("Review couldn't be found", 404);
+      throw error;
+    }
+
+    if(user.id !== review.id) {
+      const error = new CustomError ("Forbidden", 403);
+      throw error;
+    }
+
+    if(reviewImages.length >= 10) {
+      const error = new CustomError ("Maximum number of images for this resource was reached", 403);
+      throw error;
+    }
+
+    await ReviewImage.create({
+      reviewId: id,
+      url
+    })
+
+    res.json({
+      id,
+      url
+    })
+    
+  } catch(e) {
+    next(e)
+  }
+})
+
 module.exports = router;
