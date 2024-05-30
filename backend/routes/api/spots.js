@@ -478,12 +478,41 @@ router.post('/:spotId/reviews', requireAuth, validateReviews, async(req, res, ne
 })
 
 // add an img to a spot based on spot id
-router.post('/:spotId', requireAuth, async(req, res, next) => {
+router.post('/:spotId/images', requireAuth, async(req, res, next) => {
   try {
+    const id = req.params.spotId
+    const {user} = req;
+
+    const { url, preview } = req.body
+
+    const spot = await Spot.findByPk(id)
+
+    if(!spot) {
+      const error = new CustomError ("Spot couldn't be found", 404);
+      throw error
+    }
+
+    if(user.id !== spot.id) {
+      const error = new CustomError ("Forbidden", 403);
+      throw error
+    }
+
+    await SpotImage.create({
+      spotId: id,
+      url,
+      preview
+    })
+
+    res.json({
+      id,
+      url,
+      preview
+    })
     
   } catch(e) {
     next(e)
   }
 })
+
 
 module.exports = router;
