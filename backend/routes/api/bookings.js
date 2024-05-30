@@ -28,11 +28,52 @@ router.get('/current', requireAuth, async(req, res, next) => {
       include: [
         {model: Spot, attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price']},
       ]
-    })
+    });
 
-    res.json({
-      Bookings: bookings
-    })
+    const date = new Date();
+    const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const formattedTime = time.format(date).split(' ')[0];
+    const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${formattedTime}`;
+
+    let formattedResult = []
+
+    for(let booking of bookings) {
+
+      const spot = await Spot.findByPk(booking.spotId);
+
+      
+      const startDate = new Date(booking.startDate);
+      const endDate = new Date(booking.endDate)
+
+      console.log(startDate, endDate)
+
+      formattedResult.push(
+          {
+            "id": booking.id,
+            "spotId": booking.spotId,
+            "Spot": {
+              "id": spot.id,
+              "ownerId": spot.ownerId,
+              "address": spot.address,
+              "city": spot.city,
+              "state": spot.state,
+              "country": spot.country,
+              "lat": spot.lat,
+              "lng": spot.lng,
+              "name": spot.name,
+              "price": spot.price,
+              "previewImage": spot.previewImage
+            },
+            "userId": user.id,
+            "startDate": startDate,
+            "endDate": endDate,
+            "createdAt": createdOrUpdatedAt,
+            "updatedAt": createdOrUpdatedAt
+          })
+      res.json({
+        "Bookings": formattedResult
+      })
+    }
 
   } catch(e) {
     next(e)
