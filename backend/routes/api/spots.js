@@ -8,7 +8,7 @@ const CustomError = require('../../errors/errors')
 
 const { Op } = require('sequelize')
 
-const { Spot, User, Review, ReviewImage, SpotImage } = require('../../db/models');
+const { Spot, User, Review, ReviewImage, SpotImage, Booking} = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 
 const router = express.Router();
@@ -93,6 +93,14 @@ const validateReviews = [
     handleValidationErrors
 ]
 
+function dateFormatter(date) {
+  const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const formattedTime = time.format(date).split(' ')[0];
+  const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${formattedTime}`;
+
+  return createdOrUpdatedAt
+}
+
 // get all spots
 router.get('/', validateQueryParameters, async(req, res, next) => {
   try {
@@ -163,6 +171,27 @@ router.get('/', validateQueryParameters, async(req, res, next) => {
     let spotArr = [];
 
     for(let spot of spots) {
+      const reviews = await spot.getReviews()
+      let sum = 0
+
+      for(let review of reviews) {
+        sum += review.stars
+      }
+
+      const spotImages = await SpotImage.findAll({
+        where: {
+          spotId: spot.id
+        }
+      })
+
+      let preview = ""
+
+      for(let spotImage of spotImages) {
+        if(spotImage.preview === true) {
+          preview += spotImage.url
+        }
+      }
+
       spotArr.push({
         id: spot.id,
         ownerId: spot.ownerId,
@@ -175,10 +204,10 @@ router.get('/', validateQueryParameters, async(req, res, next) => {
         name: spot.name,
         description: spot.description,
         price: spot.price,
-        createdAt: spot.createdAt,
-        updatedAt: spot.updatedAt,
-        avgRating: 4,
-        previewImage: "image url"
+        createdAt: dateFormatter(spot.createdAt),
+        updatedAt: dateFormatter(spot.updatedAt),
+        avgRating: sum / reviews.length,
+        previewImage: preview
       })
     };
 
@@ -198,37 +227,53 @@ router.get('/current', requireAuth, async(req, res, next) => {
   try {
     const user = req.user
 
-    const spots = await Spot.findAll({
-      include: [{ model: Review, attributes: ['stars']}]
-    })
+    const spots = await Spot.findAll()
 
     let spotArr = []
 
     for(let spot of spots) {
+      const reviews = await spot.getReviews()
+      let sum = 0
 
-      if(user.id === spot.ownerId) {
-        spotArr.push({
-          id: spot.id,
-          ownerId: spot.ownerId,
-          address: spot.address,
-          city: spot.city,
-          state: spot.state,
-          country: spot.country,
-          lat: spot.lat,
-          lng: spot.lng,
-          name: spot.name,
-          description: spot.description,
-          price: spot.price,
-          createdAt: spot.createdAt,
-          updatedAt: spot.updatedAt,
-          avgRating: 4,
-          previewImage: "image url"
-        })
-
-        res.json({Spots: spotArr})
-
+      for(let review of reviews) {
+        sum += review.stars
       }
+
+      const spotImages = await SpotImage.findAll({
+        where: {
+          spotId: spot.id
+        }
+      })
+
+      let preview = ""
+
+      for(let spotImage of spotImages) {
+        if(spotImage.preview === true) {
+          preview += spotImage.url
+        }
+      }
+      
+     if(user.id === spot.ownerId) {
+       spotArr.push({
+         id: spot.id,
+         ownerId: spot.ownerId,
+         address: spot.address,
+         city: spot.city,
+         state: spot.state,
+         country: spot.country,
+         lat: spot.lat,
+         lng: spot.lng,
+         name: spot.name,
+         description: spot.description,
+         price: spot.price,
+         createdAt: dateFormatter(spot.createdAt),
+         updatedAt: dateFormatter(spot.updatedAt),
+         avgRating: sum / reviews.length,
+         previewImage: preview
+       })
+     }
     }
+    res.json({Spots: spotArr})
   } catch(e) {
     next(e)
   }
@@ -240,7 +285,6 @@ router.get('/:spotId', async(req, res, next) => {
 
     const id = req.params.spotId
     const spots = await Spot.findByPk(id)
-
 
     if(!spots) {
       throw new CustomError("Spot couldn't be found", 404)
@@ -279,8 +323,8 @@ router.get('/:spotId', async(req, res, next) => {
         name: spots.name,
         description: spots.description,
         price: spots.price,
-        createdAt: spots.createdAt,
-        updatedAt: spots.updatedAt,
+        createdAt: dateFormatter(spots.createdAt),
+        updatedAt: dateFormatter(spots.updatedAt),
         numReviews: reviews.length,
         avgStarRating: sum / reviews.length,
         SpotImages: spotImages,
@@ -301,6 +345,7 @@ router.get('/:spotId', async(req, res, next) => {
   }
 })
 
+//create a spot
 router.post('/', requireAuth, validateSpot, async(req, res, next) => {
   try {
 
@@ -326,8 +371,23 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
         price
       })
 
-      res.json(newSpot)
+    let formattedNewSpot = {
+      "id": newSpot.id,
+      "ownerId": newSpot.ownerId,
+      "address": newSpot.address,
+      "city": newSpot.city,
+      "state": newSpot.state,
+      "country": newSpot.country,
+      "lat": newSpot.lat,
+      "lng": newSpot.lng,
+      "name": newSpot.name,
+      "description": newSpot.description,
+      "price": newSpot.price,
+      "createdAt": dateFormatter(newSpot.createdAt),
+      "updatedAt": dateFormatter(newSpot.updatedAt)
+    }
 
+    return res.status(201).json(formattedNewSpot)
 
   } catch(e) {
     next(e)
@@ -514,5 +574,112 @@ router.post('/:spotId/images', requireAuth, async(req, res, next) => {
   }
 })
 
+// get all bookings for a spot based on spot Id
+router.get('/:spotId/bookings', requireAuth, async(req, res, next) => {
+  try {
+    const id = req.params.spotId;
+    const { user } = req;
+
+    const spot = await Spot.findByPk(id);
+
+    if(!spot) {
+      const error = new CustomError ("Spot couldn't be found", 404);
+      throw error
+    }
+
+    const bookings = await Booking.findAll({
+      where: {
+        spotId: spot.id
+      },
+      include: [
+        {model: User, attributes: ["id", "firstName", "lastName"]}
+      ]
+    })
+
+    let resBookings = []
+
+    for(let booking of bookings) {
+      console.log(booking)
+      if(spot.ownerId !== user.id) {
+        resBookings.push(
+            {
+              "spotId": spot.id,
+              "startDate": dateFormatter(booking.startDate).split(" ")[0],
+              "endDate": dateFormatter(booking.endDate).split(" ")[0]
+            }
+        )
+      } 
+
+      else {
+      resBookings.push(
+          {
+            "User": {
+              "id": user.id,
+              "firstName": user.firstName,
+              "lastName": user.lastName
+            },
+            "id": booking.id,
+            "spotId": booking.spotId,
+            "userId": booking.userId,
+            // "startDate": dateFormatter(booking.startDate).split(" ")[0],
+            // "endDate": dateFormatter(booking.endDate).split(" ")[0],
+            "createdAt": dateFormatter(booking.createdAt),
+            "updatedAt": dateFormatter(booking.updatedAt)
+          }
+        )
+      }
+    }
+
+      res.json({
+        "Bookings": resBookings
+      })
+    
+  } catch(e) {
+    next(e)
+  }
+})
+
+// create a booking from a spot based on spot Id
+router.post('/:spotId/bookings', requireAuth, async(req, res, next) => {
+  try {
+    const id = req.params.spotId;
+    const { user } = req;
+
+    const spot = await Spot.findByPk(id);
+
+    if(!spot) {
+      const error = new CustomError ("Spot couldn't be found", 404);
+      throw error
+    }
+
+    if(spot.ownerId === user.id) {
+      const error = new CustomError ("Forbidden", 403);
+      throw error
+    }
+
+    const { startDate, endDate } = req.body;
+
+    let newBooking = await Booking.create({
+      userId: user.id,
+      spotId: spot.id,
+      startDate,
+      endDate
+    })
+
+    res.json({
+      "id": newBooking.id,
+      "spotId": newBooking.spotId,
+      "userId": newBooking.userId,
+      "startDate": dateFormatter(newBooking.startDate).split(" ")[0],
+      "endDate": dateFormatter(newBooking.endDate).split(" ")[0],
+      "createdAt": dateFormatter(newBooking.createdAt),
+      "updatedAt": dateFormatter(newBooking.updatedAt)
+    })
+
+
+  } catch(e) {
+    next(e)
+  }
+})
 
 module.exports = router;

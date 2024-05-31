@@ -23,10 +23,7 @@ const validateLogin = [
 
 
 // Log in
-router.post(
-  '/',
-  validateLogin,
-  async (req, res, next) => {
+router.post('/', validateLogin, async (req, res, next) => {
     const { credential, password } = req.body;
 
     const user = await User.unscoped().findOne({
@@ -90,11 +87,23 @@ router.get(
   }
 );
 
-router.get('/', (req, res) => {
-  const {user} = req.params
+router.get('/', async(req, res, next) => {
+  try {
+    const { user } = req
 
-  if(user) {
-    
+    const resUser = await User.findByPk(user.id);
+
+    res.json(resUser)
+
+    if(!user) {
+      res.json({
+        "user": null
+      }).status(200)
+    }
+
+
+  } catch(e) {
+    next(e)
   }
 })
 
