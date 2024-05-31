@@ -693,7 +693,61 @@ router.post('/:spotId/bookings', requireAuth, async(req, res, next) => {
       endDate
     })
 
-    res.json({
+    const bookings = await Booking.findAll({
+      where: {
+        spotId: newBooking.spotId
+      }
+    })
+
+    // booking conflict logic
+    let rangeError = {
+      startDate: "",
+      endDate: ""
+    };
+
+    for(let booking of bookings) {
+      if(newBooking.id === booking.id) {
+        continue;
+      }
+
+      // check bookingToUpdate.startDate
+      if (Date.parse(newBooking.startDate) >= booking.startDate.valueOf() && Date.parse(newBooking.startDate) <= booking.endDate.valueOf()) {
+        rangeError.startDate = "Start date conflicts with an existing booking"
+      }
+
+      // check bookingToUpdate.endDate
+      if (Date.parse(newBooking.endDate) >= booking.startDate.valueOf() && Date.parse(newBooking.endDate) <= booking.endDate.valueOf()) {
+        rangeError.endDate = "End date conflicts with an existing booking"
+      }
+    }
+
+    if(rangeError.startDate !== "" && rangeError.endDate !== "") {
+      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+      error.errors = rangeError
+      throw error
+    }
+
+    if(rangeError.startDate !== "") {
+      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+      error.errors = rangeError.startDate
+      throw error
+    }
+
+    if(rangeError.startDate !== "") {
+      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+      error.errors = rangeError.endDate
+      throw error
+    }
+
+    if(newBooking.startDate >= newBooking.endDate) {
+      const error = new CustomError ("Bad Request", 400);
+      error.errors = {
+        "endDate": "endDate cannot be on or before startDate"
+      }
+      throw error
+    }
+
+    res.status(201).json({
       "id": newBooking.id,
       "spotId": newBooking.spotId,
       "userId": newBooking.userId,
