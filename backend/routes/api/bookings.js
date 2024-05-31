@@ -12,6 +12,11 @@ const { requireAuth } = require('../../utils/auth');
 
 const router = express.Router();
 
+const validateBookings = [
+  check('endDate'),
+  handleValidationErrors
+]
+
 // get all of the current user's bookings
 router.get('/current', requireAuth, async(req, res, next) => {
   try {
@@ -81,7 +86,7 @@ router.get('/current', requireAuth, async(req, res, next) => {
 });
 
 // update a booking
-router.put('/:bookingId', requireAuth, async(req, res, next) => {
+router.put('/:bookingId', requireAuth, validateBookings, async(req, res, next) => {
   try {
 
     const {startDate, endDate} = req.body;
@@ -101,12 +106,32 @@ router.put('/:bookingId', requireAuth, async(req, res, next) => {
       throw error
     }
 
-    const updatedBooking = await bookingToUpdate.update({
+    const date = new Date();
+    const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const formattedTime = time.format(date).split(' ')[0];
+    const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${formattedTime}`;
+
+    console.log(createdOrUpdatedAt.split(" ")[0], endDate)
+
+    if(createdOrUpdatedAt.split(" ")[0] > endDate) {
+      const error = new CustomError("Past bookings can't be modified", 403);
+      throw error
+    }
+
+    await bookingToUpdate.update({
       startDate,
       endDate
     })
 
-    res.json(updatedBooking)
+    res.json({
+      "id": bookingToUpdate.id,
+      "spotId": bookingToUpdate.spotId,
+      "userId": bookingToUpdate.userId,
+      startDate,
+      endDate,
+      "createdAt": createdOrUpdatedAt,
+      "updatedAt": createdOrUpdatedAt
+    })
 
   } catch(e) {
     next(e)
@@ -129,6 +154,14 @@ router.delete('/:bookingId', requireAuth, async(req, res, next) => {
 
     if(user.id !== bookingToDelete.userId) {
       const error = new CustomError ("Forbidden", 403);
+      throw error
+    }
+
+    const date = new Date();
+    const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()};`
+
+    if(createdOrUpdatedAt > bookingToDelete.startDate) {
+      const error = new CustomError ("Bookings that have been started can't be deleted", 403);
       throw error
     }
 

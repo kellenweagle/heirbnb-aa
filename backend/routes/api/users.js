@@ -29,11 +29,8 @@ const validateSignup = [
   handleValidationErrors
 ];
 
-// Sign up
-router.post(
-  '/',
-  validateSignup,
-  async (req, res, next) => {
+// Sign up a user
+router.post('/', validateSignup, async (req, res, next) => {
     try {
       const { firstName, lastName, email, password, username } = req.body;
       const hashedPassword = bcrypt.hashSync(password);
