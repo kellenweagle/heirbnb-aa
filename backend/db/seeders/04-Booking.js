@@ -16,32 +16,32 @@ module.exports = {
       {
        userId: 1,
        spotId: 2,
-       startDate: "06-20-2024",
-       endDate: "07-20-2024"
+       startDate: new Date('2024-06-01'),
+       endDate: new Date('2024-07-01')
      },
      {
       userId: 2,
       spotId: 3,
-      startDate: "06-20-2024",
-      endDate: "07-20-2024"
+      startDate: new Date('2024-06-01'),
+      endDate: new Date('2024-07-01')
     },
     {
       userId: 3,
       spotId: 4,
-      startDate: "06-20-2024",
-      endDate: "07-20-2024"
+      startDate: new Date('2024-06-01'),
+      endDate: new Date('2024-07-01')
     },
     {
       userId: 4,
       spotId: 5,
-      startDate: "06-20-2024",
-      endDate: "07-20-2024"
+      startDate: new Date('2024-06-01'),
+      endDate: new Date('2024-07-01')
     },
     {
       userId: 5,
       spotId: 6,
-      startDate: "06-20-2024",
-      endDate: "07-20-2024"
+      startDate: new Date('2024-06-01'),
+      endDate: new Date('2024-07-01')
     },
     ], { validate: true });
     

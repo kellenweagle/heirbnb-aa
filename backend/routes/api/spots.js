@@ -608,7 +608,7 @@ router.get('/:spotId/bookings', requireAuth, async(req, res, next) => {
               "endDate": dateFormatter(booking.endDate).split(" ")[0]
             }
         )
-      }
+      } 
 
       else {
       resBookings.push(
