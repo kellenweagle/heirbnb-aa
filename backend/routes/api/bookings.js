@@ -101,7 +101,7 @@ router.get('/current', requireAuth, async(req, res, next) => {
   }
 });
 
-// update a booking
+// edit a booking
 router.put('/:bookingId', requireAuth, validateBookings, async(req, res, next) => {
   try {
 
@@ -117,20 +117,78 @@ router.put('/:bookingId', requireAuth, validateBookings, async(req, res, next) =
       throw error
     }
 
+    const bookings = await Booking.findAll({
+      where: {
+        spotId: bookingToUpdate.spotId
+      }
+    })
+
+    // booking conflict logic
+    let rangeError = {
+      startDate: "",
+      endDate: ""
+    };
+
+    for(let booking of bookings) {
+      if(bookingToUpdate.id === booking.id) {
+        continue;
+      }
+
+      // check bookingToUpdate.startDate
+      if (Date.parse(startDate) >= booking.startDate.valueOf() && Date.parse(startDate) <= booking.endDate.valueOf()) {
+        rangeError.startDate = "Start date conflicts with an existing booking"
+      }
+
+      // check bookingToUpdate.endDate
+      if (Date.parse(endDate) >= booking.startDate.valueOf() && Date.parse(endDate) <= booking.endDate.valueOf()) {
+        rangeError.endDate = "End date conflicts with an existing booking"
+      }
+    }
+
+    if(rangeError.startDate !== "" && rangeError.endDate !== "") {
+      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+      error.errors = rangeError
+      throw error
+    }
+
+    if(rangeError.startDate !== "") {
+      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+      error.errors = rangeError.startDate
+      throw error
+    }
+
+    if(rangeError.startDate !== "") {
+      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+      error.errors = rangeError.endDate
+      throw error
+    }
+
     if(user.id !== bookingToUpdate.userId) {
       const error = new CustomError ("Forbidden", 403);
       throw error
     }
 
-    if(dateFormatter(bookingToUpdate.startDate) > dateFormatter(bookingToUpdate.endDate)) {
+    let currentDate = new Date()
+
+    if(bookingToUpdate.startDate < currentDate) {
       const error = new CustomError("Past bookings can't be modified", 403);
       throw error
     }
 
-    await bookingToUpdate.update({
+    let updatedBooking = await bookingToUpdate.update({
       startDate,
       endDate
     })
+
+    if(updatedBooking.startDate >= updatedBooking.endDate) {
+      const error = new CustomError ("Bad Request", 400);
+      error.errors = {
+        "endDate": "endDate cannot be on or before startDate"
+      }
+      throw error
+    }
+
+
 
     res.json({
       "id": bookingToUpdate.id,
