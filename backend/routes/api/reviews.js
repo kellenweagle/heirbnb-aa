@@ -38,37 +38,77 @@ router.get('/current', requireAuth, async(req, res, next) => {
   try {
     const user = req.user
 
-    if(user) {
-      const reviews = await Review.findAll({
-        where: {
-          userId: user.id
-        }
-      })
-    
-    let reviewArr = [];
+    if(!user) {
+      const error = new CustomError ("Forbidden", 403);
+      throw error
+    } 
 
-    const spotImages = await SpotImage.findAll({
+    const reviews = await Review.findAll({
       where: {
-        spotId: spot.id
+        userId: user.id
       }
     })
 
-    let preview = ""
+    let reviewArr = [];
 
-    for(let spotImage of spotImages) {
-      if(spotImage.preview === true) {
-        preview += spotImage.url
+    for(let review of reviews) {
+      const spot = await Spot.findByPk(review.spotId)
+
+      const reviewImages = ReviewImage.findAll({
+        where: {
+          reviewId: review.id
+        }
+      })
+
+      const spotImages = await SpotImage.findAll({
+        where: {
+          spotId: spot.id
+        }
+      })
+
+      let preview = ""
+
+      for(let spotImage of spotImages) {
+        if(spotImage.preview === true) {
+          preview += spotImage.url
+        }
       }
+      
+      reviewArr.push({
+          "id": review.id,
+          "userId": review.userId,
+          "spotId": review.spotId,
+          "review": review.review,
+          "stars": review.stars,
+          "createdAt": dateFormatter(review.createdAt),
+          "updatedAt": dateFormatter(review.updatedAt),
+          "User": {
+            "id": user.id,
+            "firstName": user.firstName,
+            "lastName": user.lastName
+          },
+          "Spot": {
+            "id": spot.id,
+            "ownerId": spot.ownerId,
+            "address": spot.address,
+            "city": spot.city,
+            "state": spot.state,
+            "country": spot.country,
+            "lat": Number(spot.lat),
+            "lng": Number(spot.lng),
+            "name": spot.name,
+            "price": Number(spot.price),
+            "previewImage": preview
+          },
+          "ReviewImages": [reviewImages]
+        }
+      )
     }
 
     res.json({
-      Reviews: reviews
+      Reviews: reviewArr
     })
-      
-    } else {
-      const error = new CustomError ("Forbidden", 403);
-      throw error
-    }
+
   } catch(e) {
     next(e)
   }

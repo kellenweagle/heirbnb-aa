@@ -325,8 +325,8 @@ router.get('/:spotId', async(req, res, next) => {
         price: Number(spots.price),
         createdAt: dateFormatter(spots.createdAt),
         updatedAt: dateFormatter(spots.updatedAt),
-        numReviews: Number(reviews.length),
-        avgStarRating: Number(sum / reviews.length),
+        numReviews: reviews.length,
+        avgStarRating: sum / reviews.length,
         SpotImages: spotImages,
         Owner: {
           id: owner.id,
@@ -574,14 +574,14 @@ router.post('/:spotId/images', requireAuth, async(req, res, next) => {
       throw error
     }
 
-    await SpotImage.create({
+    const newSpotImage = await SpotImage.create({
       spotId: id,
       url,
       preview
     })
 
-    res.json({
-      id,
+    return res.status(201).json({
+      "id": newSpotImage.id,
       url,
       preview
     })
