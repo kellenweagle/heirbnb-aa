@@ -50,7 +50,6 @@ router.get('/current', requireAuth, async(req, res, next) => {
     })
 
     let reviewArr = [];
-    let reviewImgArr = []
 
     for(let review of reviews) {
       const spot = await Spot.findByPk(review.spotId)
@@ -63,8 +62,6 @@ router.get('/current', requireAuth, async(req, res, next) => {
       })
 
       let preview = ""
-
-      console.log(reviewImages.id)
 
       for(let reviewImage of reviewImages) {
         preview += reviewImage.url
@@ -136,7 +133,17 @@ router.put('/:reviewId', requireAuth, validateReviews, async(req, res, next) => 
       stars
     })
 
-    res.json(updatedReview)
+    const formatUpdatedReview = {
+      "id": updatedReview.id,
+      "userId": updatedReview.userId,
+      "spotId": updatedReview.spotId,
+      "review": updatedReview.review,
+      "stars": updatedReview.stars,
+      "createdAt": dateFormatter(updatedReview.createdAt),
+      "updatedAt": dateFormatter(updatedReview.updatedAt)
+    }
+
+    res.json(formatUpdatedReview)
 
   } catch(e) {
     next(e)
@@ -193,7 +200,7 @@ router.post('/:reviewId/images', requireAuth, async(req, res, next) => {
       throw error;
     }
 
-    if(user.id !== review.id) {
+    if(user.id !== review.userId) {
       const error = new CustomError ("Forbidden", 403);
       throw error;
     }
@@ -208,7 +215,7 @@ router.post('/:reviewId/images', requireAuth, async(req, res, next) => {
       url
     })
 
-    res.json({
+    res.status(201).json({
       id,
       url
     })

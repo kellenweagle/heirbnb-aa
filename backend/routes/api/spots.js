@@ -534,10 +534,10 @@ router.post('/:spotId/reviews', requireAuth, validateReviews, async(req, res, ne
       throw error
     }
     
-    // if(alreadyReviewed) {
-    //   const error = new CustomError ("User already has a review for this spot", 500);
-    //   throw error
-    // }
+    if(alreadyReviewed.length > 0) {
+      const error = new CustomError ("User already has a review for this spot", 500);
+      throw error
+    }
 
     const newReview = await Review.create({
       userId: user.id,
@@ -546,7 +546,17 @@ router.post('/:spotId/reviews', requireAuth, validateReviews, async(req, res, ne
       stars
     })
 
-    res.json(newReview)
+    let formattedReview = {
+      "id": newReview.id,
+      "userId": newReview.userId,
+      "spotId": newReview.spotId,
+      "review": newReview.review,
+      "stars": newReview.stars,
+      "createdAt": dateFormatter(newReview.createdAt),
+      "updatedAt": dateFormatter(newReview.updatedAt)
+    }
+
+    return res.status(201).json(formattedReview)
 
   } catch(e) {
     next(e)

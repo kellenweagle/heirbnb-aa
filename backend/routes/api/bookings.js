@@ -44,6 +44,8 @@ router.get('/current', requireAuth, async(req, res, next) => {
       ]
     });
 
+    if(bookings) {
+
     let formattedResult = []
 
     for(let booking of bookings) {
@@ -75,10 +77,10 @@ router.get('/current', requireAuth, async(req, res, next) => {
               "city": spot.city,
               "state": spot.state,
               "country": spot.country,
-              "lat": spot.lat,
-              "lng": spot.lng,
+              "lat": Number(spot.lat),
+              "lng": Number(spot.lng),
               "name": spot.name,
-              "price": spot.price,
+              "price": Number(spot.price),
               "previewImage": preview
             },
             "userId": user.id,
@@ -86,7 +88,9 @@ router.get('/current', requireAuth, async(req, res, next) => {
             "endDate": dateFormatter(booking.endDate).split(" ")[0],
             "createdAt": dateFormatter(booking.createdAt),
             "updatedAt": dateFormatter(booking.updatedAt)
-          })
+          }
+        )
+      }
       res.json({
         "Bookings": formattedResult
       })
