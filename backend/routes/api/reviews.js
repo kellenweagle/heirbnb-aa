@@ -50,28 +50,24 @@ router.get('/current', requireAuth, async(req, res, next) => {
     })
 
     let reviewArr = [];
+    let reviewImgArr = []
 
     for(let review of reviews) {
       const spot = await Spot.findByPk(review.spotId)
 
-      const reviewImages = ReviewImage.findAll({
+      const reviewImages = await ReviewImage.findAll({
         where: {
           reviewId: review.id
-        }
-      })
-
-      const spotImages = await SpotImage.findAll({
-        where: {
-          spotId: spot.id
-        }
+        },
+        attributes: ['id', 'url']
       })
 
       let preview = ""
 
-      for(let spotImage of spotImages) {
-        if(spotImage.preview === true) {
-          preview += spotImage.url
-        }
+      console.log(reviewImages.id)
+
+      for(let reviewImage of reviewImages) {
+        preview += reviewImage.url
       }
       
       reviewArr.push({
@@ -100,7 +96,7 @@ router.get('/current', requireAuth, async(req, res, next) => {
             "price": Number(spot.price),
             "previewImage": preview
           },
-          "ReviewImages": [reviewImages]
+          "ReviewImages": reviewImages
         }
       )
     }
