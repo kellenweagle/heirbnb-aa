@@ -7,7 +7,7 @@ const { handleValidationErrors } = require('../../utils/validation');
 const CustomError = require('../../errors/errors')
 
 
-const { Spot, User, Review, ReviewImage } = require('../../db/models');
+const { Spot, User, Review, ReviewImage, SpotImage } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 
 const router = express.Router();
@@ -24,6 +24,15 @@ const validateReviews = [
     handleValidationErrors
 ]
 
+function dateFormatter(date) {
+  const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const formattedTime = time.format(date).split(' ')[0];
+  const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${formattedTime}`;
+
+  return createdOrUpdatedAt
+}
+
+
 // get all reviews of current user
 router.get('/current', requireAuth, async(req, res, next) => {
   try {
@@ -33,16 +42,29 @@ router.get('/current', requireAuth, async(req, res, next) => {
       const reviews = await Review.findAll({
         where: {
           userId: user.id
-        },
-        include: [
-          {model: User, attributes: ['id', 'firstName', 'lastName']},
-          {model: Spot, attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price']},
-          {model: ReviewImage, attributes: ['id', 'url']}
-        ]
+        }
       })
-      res.json({
-          Reviews: reviews
-      })
+    
+    let reviewArr = [];
+
+    const spotImages = await SpotImage.findAll({
+      where: {
+        spotId: spot.id
+      }
+    })
+
+    let preview = ""
+
+    for(let spotImage of spotImages) {
+      if(spotImage.preview === true) {
+        preview += spotImage.url
+      }
+    }
+
+    res.json({
+      Reviews: reviews
+    })
+      
     } else {
       const error = new CustomError ("Forbidden", 403);
       throw error
