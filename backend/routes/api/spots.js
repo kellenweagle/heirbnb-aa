@@ -56,7 +56,7 @@ const validateQueryParameters = [
     .withMessage('Size must be greater than or equal to 1'),
   check('minLat')
     .optional()
-    .isFloat({ min: -100 })
+    .isFloat({ min: -1000 })
     .withMessage("Minimum latitude is invalid"),
   check('maxLat')
     .optional()
@@ -64,7 +64,7 @@ const validateQueryParameters = [
     .withMessage("Maximum latitude is invalid"),
   check('minLng')
     .optional()
-    .isFloat({ min: -100 })
+    .isFloat({ min: -1000 })
     .withMessage("Minimum longitude is invalid"),
   check('maxLng')
     .optional()
@@ -150,15 +150,15 @@ router.get('/', validateQueryParameters, async(req, res, next) => {
 
     // search for lng
     if(minLng && maxLng) {
-      where.lat = { [Op.between]: [minLng, maxLng] }
+      where.lng = { [Op.between]: [minLng, maxLng] }
     }
 
     if(minLng && !maxLng) {
-      where.lat = { [Op.gte]: minLng }
+      where.lng = { [Op.gte]: minLng }
     }
 
     if(!minLng && maxLng) {
-      where.lat = { [Op.lte]: maxLng }
+      where.lng = { [Op.lte]: maxLng }
     }
 
 
@@ -199,11 +199,11 @@ router.get('/', validateQueryParameters, async(req, res, next) => {
         city: spot.city,
         state: spot.state,
         country: spot.country,
-        lat: spot.lat,
-        lng: spot.lng,
+        lat: Number(spot.lat),
+        lng: Number(spot.lng),
         name: spot.name,
         description: spot.description,
-        price: spot.price,
+        price: Number(spot.price),
         createdAt: dateFormatter(spot.createdAt),
         updatedAt: dateFormatter(spot.updatedAt),
         avgRating: sum / reviews.length,
@@ -261,14 +261,14 @@ router.get('/current', requireAuth, async(req, res, next) => {
          city: spot.city,
          state: spot.state,
          country: spot.country,
-         lat: spot.lat,
-         lng: spot.lng,
+         lat: Number(spot.lat),
+         lng: Number(spot.lng),
          name: spot.name,
          description: spot.description,
-         price: spot.price,
+         price: Number(spot.price),
          createdAt: dateFormatter(spot.createdAt),
          updatedAt: dateFormatter(spot.updatedAt),
-         avgRating: sum / reviews.length,
+         avgRating: Number(sum / reviews.length),
          previewImage: preview
        })
      }
@@ -318,11 +318,11 @@ router.get('/:spotId', async(req, res, next) => {
         city: spots.city,
         state: spots.state,
         country: spots.country,
-        lat: spots.lat,
-        lng: spots.lng,
+        lat: Number(spots.lat),
+        lng: Number(spots.lng),
         name: spots.name,
         description: spots.description,
-        price: spots.price,
+        price: Number(spots.price),
         createdAt: dateFormatter(spots.createdAt),
         updatedAt: dateFormatter(spots.updatedAt),
         numReviews: reviews.length,
@@ -378,11 +378,11 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
       "city": newSpot.city,
       "state": newSpot.state,
       "country": newSpot.country,
-      "lat": newSpot.lat,
-      "lng": newSpot.lng,
+      "lat": Number(newSpot.lat),
+      "lng": Number(newSpot.lng),
       "name": newSpot.name,
       "description": newSpot.description,
-      "price": newSpot.price,
+      "price": Number(newSpot.price),
       "createdAt": dateFormatter(newSpot.createdAt),
       "updatedAt": dateFormatter(newSpot.updatedAt)
     }
@@ -394,6 +394,7 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
   }
 })
 
+//update a spot
 router.put('/:spotId', requireAuth, validateSpot, async(req, res, next) => {
   try {
 
@@ -427,14 +428,30 @@ router.put('/:spotId', requireAuth, validateSpot, async(req, res, next) => {
         price
       })
 
-      res.json(updatedSpot)
+    let formatUpdatedSpot = {
+      "id": updatedSpot.id,
+      "ownerId": updatedSpot.ownerId,
+      "address": updatedSpot.address,
+      "city": updatedSpot.city,
+      "state": updatedSpot.state,
+      "country": updatedSpot.country,
+      "lat": Number(updatedSpot.lat),
+      "lng": Number(updatedSpot.lng),
+      "name": updatedSpot.lng,
+      "description": updatedSpot.description,
+      "price": Number(updatedSpot.price),
+      "createdAt": dateFormatter(updatedSpot.createdAt),
+      "updatedAt": dateFormatter(updatedSpot.updatedAt)
+      }
 
+      res.json(formatUpdatedSpot)
 
   } catch(e) {
     next(e)
   }
 })
 
+// delete a spot
 router.delete('/:spotId', requireAuth, async(req, res, next) => {
   try {
 
@@ -469,7 +486,7 @@ router.get('/:spotId/reviews', async(req, res, next) => {
     const spot = await Spot.findByPk(id)
 
     if(!spot) {
-      const error = new CustomError("Spot  couldn't be found", 404);
+      const error = new CustomError("Spot couldn't be found", 404);
       throw error
     }
 
@@ -500,6 +517,11 @@ router.post('/:spotId/reviews', requireAuth, validateReviews, async(req, res, ne
 
     const spot = await Spot.findByPk(id)
 
+    if(!spot) {
+      const error = new CustomError ("Spot couldn't be found", 404);
+      throw error
+    }
+
     const alreadyReviewed = await Review.findAll({
       where: {
         spotId: spot.id,
@@ -511,13 +533,8 @@ router.post('/:spotId/reviews', requireAuth, validateReviews, async(req, res, ne
       const error = new CustomError ("Forbidden", 403);
       throw error
     }
-
-    if(!spot) {
-      const error = new CustomError ("Spot couldn't be found", 404);
-      throw error
-    }
     
-    if(alreadyReviewed) {
+    if(alreadyReviewed.length > 0) {
       const error = new CustomError ("User already has a review for this spot", 500);
       throw error
     }
@@ -529,7 +546,17 @@ router.post('/:spotId/reviews', requireAuth, validateReviews, async(req, res, ne
       stars
     })
 
-    res.json(newReview)
+    let formattedReview = {
+      "id": newReview.id,
+      "userId": newReview.userId,
+      "spotId": newReview.spotId,
+      "review": newReview.review,
+      "stars": newReview.stars,
+      "createdAt": dateFormatter(newReview.createdAt),
+      "updatedAt": dateFormatter(newReview.updatedAt)
+    }
+
+    return res.status(201).json(formattedReview)
 
   } catch(e) {
     next(e)
@@ -557,14 +584,14 @@ router.post('/:spotId/images', requireAuth, async(req, res, next) => {
       throw error
     }
 
-    await SpotImage.create({
+    const newSpotImage = await SpotImage.create({
       spotId: id,
       url,
       preview
     })
 
-    res.json({
-      id,
+    return res.status(201).json({
+      "id": newSpotImage.id,
       url,
       preview
     })
@@ -608,7 +635,7 @@ router.get('/:spotId/bookings', requireAuth, async(req, res, next) => {
               "endDate": dateFormatter(booking.endDate).split(" ")[0]
             }
         )
-      }
+      } 
 
       else {
       resBookings.push(
@@ -621,8 +648,8 @@ router.get('/:spotId/bookings', requireAuth, async(req, res, next) => {
             "id": booking.id,
             "spotId": booking.spotId,
             "userId": booking.userId,
-            // "startDate": dateFormatter(booking.startDate).split(" ")[0],
-            // "endDate": dateFormatter(booking.endDate).split(" ")[0],
+            "startDate": dateFormatter(booking.startDate).split(" ")[0],
+            "endDate": dateFormatter(booking.endDate).split(" ")[0],
             "createdAt": dateFormatter(booking.createdAt),
             "updatedAt": dateFormatter(booking.updatedAt)
           }

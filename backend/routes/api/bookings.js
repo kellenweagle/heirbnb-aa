@@ -7,7 +7,7 @@ const { handleValidationErrors } = require('../../utils/validation');
 const CustomError = require('../../errors/errors')
 
 
-const { Spot, User, Review, ReviewImage, Booking } = require('../../db/models');
+const { Spot, User, Review, ReviewImage, SpotImage, Booking } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 
 const router = express.Router();
@@ -16,6 +16,15 @@ const validateBookings = [
   check('endDate'),
   handleValidationErrors
 ]
+
+function dateFormatter(date) {
+  const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const formattedTime = time.format(date).split(' ')[0];
+  const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${formattedTime}`;
+
+  return createdOrUpdatedAt
+}
+
 
 // get all of the current user's bookings
 router.get('/current', requireAuth, async(req, res, next) => {
@@ -35,10 +44,7 @@ router.get('/current', requireAuth, async(req, res, next) => {
       ]
     });
 
-    const date = new Date();
-    const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const formattedTime = time.format(date).split(' ')[0];
-    const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${formattedTime}`;
+    if(bookings) {
 
     let formattedResult = []
 
@@ -46,11 +52,19 @@ router.get('/current', requireAuth, async(req, res, next) => {
 
       const spot = await Spot.findByPk(booking.spotId);
 
-      
-      const startDate = new Date(booking.startDate);
-      const endDate = new Date(booking.endDate)
+      const spotImages = await SpotImage.findAll({
+        where: {
+          spotId: spot.id
+        }
+      })
 
-      console.log(startDate, endDate)
+      let preview = ""
+
+      for(let spotImage of spotImages) {
+        if(spotImage.preview === true) {
+          preview += spotImage.url
+        }
+      }
 
       formattedResult.push(
           {
@@ -63,18 +77,20 @@ router.get('/current', requireAuth, async(req, res, next) => {
               "city": spot.city,
               "state": spot.state,
               "country": spot.country,
-              "lat": spot.lat,
-              "lng": spot.lng,
+              "lat": Number(spot.lat),
+              "lng": Number(spot.lng),
               "name": spot.name,
-              "price": spot.price,
-              "previewImage": spot.previewImage
+              "price": Number(spot.price),
+              "previewImage": preview
             },
             "userId": user.id,
-            "startDate": startDate,
-            "endDate": endDate,
-            "createdAt": createdOrUpdatedAt,
-            "updatedAt": createdOrUpdatedAt
-          })
+            "startDate": dateFormatter(booking.startDate).split(" ")[0],
+            "endDate": dateFormatter(booking.endDate).split(" ")[0],
+            "createdAt": dateFormatter(booking.createdAt),
+            "updatedAt": dateFormatter(booking.updatedAt)
+          }
+        )
+      }
       res.json({
         "Bookings": formattedResult
       })
@@ -106,14 +122,7 @@ router.put('/:bookingId', requireAuth, validateBookings, async(req, res, next) =
       throw error
     }
 
-    const date = new Date();
-    const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const formattedTime = time.format(date).split(' ')[0];
-    const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${formattedTime}`;
-
-    console.log(createdOrUpdatedAt.split(" ")[0], endDate)
-
-    if(createdOrUpdatedAt.split(" ")[0] > endDate) {
+    if(dateFormatter(bookingToUpdate.startDate) > dateFormatter(bookingToUpdate.endDate)) {
       const error = new CustomError("Past bookings can't be modified", 403);
       throw error
     }
@@ -127,10 +136,10 @@ router.put('/:bookingId', requireAuth, validateBookings, async(req, res, next) =
       "id": bookingToUpdate.id,
       "spotId": bookingToUpdate.spotId,
       "userId": bookingToUpdate.userId,
-      startDate,
-      endDate,
-      "createdAt": createdOrUpdatedAt,
-      "updatedAt": createdOrUpdatedAt
+      "startDate": dateFormatter(bookingToUpdate.startDate).split(" ")[0],
+      "endDate": dateFormatter(bookingToUpdate.endDate).split(" ")[0],
+      "createdAt": dateFormatter(bookingToUpdate.createdAt),
+      "updatedAt": dateFormatter(bookingToUpdate.updatedAt)
     })
 
   } catch(e) {
@@ -157,10 +166,9 @@ router.delete('/:bookingId', requireAuth, async(req, res, next) => {
       throw error
     }
 
-    const date = new Date();
-    const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()};`
+    const currentDate = new Date()
 
-    if(createdOrUpdatedAt > bookingToDelete.startDate) {
+    if(bookingToDelete.startDate >= currentDate) {
       const error = new CustomError ("Bookings that have been started can't be deleted", 403);
       throw error
     }

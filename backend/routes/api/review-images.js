@@ -28,6 +28,8 @@ router.delete('/:imageId', requireAuth, async(req, res, next) => {
 
     const review = await Review.findByPk(reviewImageToDelete.reviewId);
 
+    console.log(review.userId)
+
     if(review.id === reviewImageToDelete.reviewId && user.id !== review.userId) {
       const error = new CustomError ("Forbidden", 403);
       throw error

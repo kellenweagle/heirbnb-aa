@@ -7,7 +7,7 @@ const { handleValidationErrors } = require('../../utils/validation');
 const CustomError = require('../../errors/errors')
 
 
-const { Spot, User, Review, ReviewImage } = require('../../db/models');
+const { Spot, User, Review, ReviewImage, SpotImage } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
 
 const router = express.Router();
@@ -24,29 +24,84 @@ const validateReviews = [
     handleValidationErrors
 ]
 
+function dateFormatter(date) {
+  const time = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const formattedTime = time.format(date).split(' ')[0];
+  const createdOrUpdatedAt = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${formattedTime}`;
+
+  return createdOrUpdatedAt
+}
+
+
 // get all reviews of current user
 router.get('/current', requireAuth, async(req, res, next) => {
   try {
     const user = req.user
 
-    if(user) {
-      const reviews = await Review.findAll({
-        where: {
-          userId: user.id
-        },
-        include: [
-          {model: User, attributes: ['id', 'firstName', 'lastName']},
-          {model: Spot, attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price']},
-          {model: ReviewImage, attributes: ['id', 'url']}
-        ]
-      })
-      res.json({
-          Reviews: reviews
-      })
-    } else {
+    if(!user) {
       const error = new CustomError ("Forbidden", 403);
       throw error
+    } 
+
+    const reviews = await Review.findAll({
+      where: {
+        userId: user.id
+      }
+    })
+
+    let reviewArr = [];
+
+    for(let review of reviews) {
+      const spot = await Spot.findByPk(review.spotId)
+
+      const reviewImages = await ReviewImage.findAll({
+        where: {
+          reviewId: review.id
+        },
+        attributes: ['id', 'url']
+      })
+
+      let preview = ""
+
+      for(let reviewImage of reviewImages) {
+        preview += reviewImage.url
+      }
+      
+      reviewArr.push({
+          "id": review.id,
+          "userId": review.userId,
+          "spotId": review.spotId,
+          "review": review.review,
+          "stars": review.stars,
+          "createdAt": dateFormatter(review.createdAt),
+          "updatedAt": dateFormatter(review.updatedAt),
+          "User": {
+            "id": user.id,
+            "firstName": user.firstName,
+            "lastName": user.lastName
+          },
+          "Spot": {
+            "id": spot.id,
+            "ownerId": spot.ownerId,
+            "address": spot.address,
+            "city": spot.city,
+            "state": spot.state,
+            "country": spot.country,
+            "lat": Number(spot.lat),
+            "lng": Number(spot.lng),
+            "name": spot.name,
+            "price": Number(spot.price),
+            "previewImage": preview
+          },
+          "ReviewImages": reviewImages
+        }
+      )
     }
+
+    res.json({
+      Reviews: reviewArr
+    })
+
   } catch(e) {
     next(e)
   }
@@ -78,7 +133,17 @@ router.put('/:reviewId', requireAuth, validateReviews, async(req, res, next) => 
       stars
     })
 
-    res.json(updatedReview)
+    const formatUpdatedReview = {
+      "id": updatedReview.id,
+      "userId": updatedReview.userId,
+      "spotId": updatedReview.spotId,
+      "review": updatedReview.review,
+      "stars": updatedReview.stars,
+      "createdAt": dateFormatter(updatedReview.createdAt),
+      "updatedAt": dateFormatter(updatedReview.updatedAt)
+    }
+
+    res.json(formatUpdatedReview)
 
   } catch(e) {
     next(e)
@@ -135,7 +200,7 @@ router.post('/:reviewId/images', requireAuth, async(req, res, next) => {
       throw error;
     }
 
-    if(user.id !== review.id) {
+    if(user.id !== review.userId) {
       const error = new CustomError ("Forbidden", 403);
       throw error;
     }
@@ -150,7 +215,7 @@ router.post('/:reviewId/images', requireAuth, async(req, res, next) => {
       url
     })
 
-    res.json({
+    res.status(201).json({
       id,
       url
     })
