@@ -579,7 +579,7 @@ router.post('/:spotId/images', requireAuth, async(req, res, next) => {
       throw error
     }
 
-    if(user.id !== spot.id) {
+    if(user.id !== spot.ownerId) {
       const error = new CustomError ("Forbidden", 403);
       throw error
     }
