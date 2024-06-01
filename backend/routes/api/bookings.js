@@ -143,49 +143,30 @@ router.put('/:bookingId', requireAuth, validateBookings, async(req, res, next) =
       if (Date.parse(endDate) >= booking.startDate.valueOf() && Date.parse(endDate) <= booking.endDate.valueOf()) {
         rangeError.endDate = "End date conflicts with an existing booking"
       }
-    }
-
-    if(rangeError.startDate !== "" && rangeError.endDate !== "") {
-      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
-      error.errors = rangeError
-      throw error
-    }
-
-    if(rangeError.startDate !== "") {
-      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
-      error.errors = rangeError.startDate
-      throw error
-    }
-
-    if(rangeError.startDate !== "") {
-      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
-      error.errors = rangeError.endDate
-      throw error
-    }
-
-    if(user.id !== bookingToUpdate.userId) {
-      const error = new CustomError ("Forbidden", 403);
-      throw error
-    }
-
-    let currentDate = new Date()
-
-    if(bookingToUpdate.startDate < currentDate) {
-      const error = new CustomError("Past bookings can't be modified", 403);
-      throw error
-    }
-
-    let updatedBooking = await bookingToUpdate.update({
-      startDate,
-      endDate
-    })
-
-    if(updatedBooking.startDate >= updatedBooking.endDate) {
-      const error = new CustomError ("Bad Request", 400);
-      error.errors = {
-        "endDate": "endDate cannot be on or before startDate"
+      if(user.id !== bookingToUpdate.userId) {
+        const error = new CustomError ("Forbidden", 403);
+        throw error
       }
-      throw error
+  
+      let currentDate = new Date()
+  
+      if(bookingToUpdate.startDate < currentDate) {
+        const error = new CustomError("Past bookings can't be modified", 403);
+        throw error
+      }
+  
+      let updatedBooking = await bookingToUpdate.update({
+        startDate,
+        endDate
+      })
+  
+      if(updatedBooking.startDate >= updatedBooking.endDate) {
+        const error = new CustomError ("Bad Request", 400);
+        error.errors = {
+          "endDate": "endDate cannot be on or before startDate"
+        }
+        throw error
+      }
     }
 
 

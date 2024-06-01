@@ -719,24 +719,23 @@ router.post('/:spotId/bookings', requireAuth, async(req, res, next) => {
       if (Date.parse(newBooking.endDate) >= booking.startDate.valueOf() && Date.parse(newBooking.endDate) <= booking.endDate.valueOf()) {
         rangeError.endDate = "End date conflicts with an existing booking"
       }
-    }
-
-    if(rangeError.startDate !== "" && rangeError.endDate !== "") {
-      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
-      error.errors = rangeError
-      throw error
-    }
-
-    if(rangeError.startDate !== "") {
-      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
-      error.errors = rangeError.startDate
-      throw error
-    }
-
-    if(rangeError.startDate !== "") {
-      const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
-      error.errors = rangeError.endDate
-      throw error
+      if(rangeError.startDate !== "" && rangeError.endDate !== "") {
+        const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+        error.errors = rangeError
+        throw error
+      }
+  
+      if(rangeError.startDate !== "" && rangeError.endDate === "") {
+        const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+        error.errors = rangeError.startDate
+        throw error
+      }
+  
+      if(rangeError.startDate === "" && rangeError.endDate !== "") {
+        const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
+        error.errors = rangeError.endDate
+        throw error
+      }
     }
 
     if(newBooking.startDate >= newBooking.endDate) {
