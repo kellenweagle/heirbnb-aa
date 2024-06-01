@@ -500,7 +500,7 @@ router.get('/:spotId/reviews', async(req, res, next) => {
       ]
     })
 
-    res.json({Review: reviews})
+    res.json({Reviews: reviews})
     
   } catch(e) {
     next(e)
