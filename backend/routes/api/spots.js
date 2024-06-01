@@ -394,7 +394,7 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
   }
 })
 
-//update a spot
+// edit a spot
 router.put('/:spotId', requireAuth, validateSpot, async(req, res, next) => {
   try {
 
@@ -437,7 +437,7 @@ router.put('/:spotId', requireAuth, validateSpot, async(req, res, next) => {
       "country": updatedSpot.country,
       "lat": Number(updatedSpot.lat),
       "lng": Number(updatedSpot.lng),
-      "name": updatedSpot.lng,
+      "name": updatedSpot.name,
       "description": updatedSpot.description,
       "price": Number(updatedSpot.price),
       "createdAt": dateFormatter(updatedSpot.createdAt),

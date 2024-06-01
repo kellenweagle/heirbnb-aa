@@ -210,13 +210,13 @@ router.post('/:reviewId/images', requireAuth, async(req, res, next) => {
       throw error;
     }
 
-    await ReviewImage.create({
+    let newReviewImage = await ReviewImage.create({
       reviewId: id,
       url
     })
 
     res.status(201).json({
-      id,
+      "id": Number(newReviewImage.id),
       url
     })
     
