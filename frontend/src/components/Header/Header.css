@@ -1,0 +1,17 @@
+.header {
+  border-bottom: 2px solid grey;
+  padding-bottom: 10px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerRight {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: .5rem; 
+  margin-right: 5px;
+}

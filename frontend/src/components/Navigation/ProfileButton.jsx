@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { FaUserAlt } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
+import { IoIosMenu } from "react-icons/io";
 import * as sessionActions from '../../store/session';
 import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal/LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
+import './ProfileButton.css'
 
 function ProfileButton({ user }) {
   const dispatch = useDispatch();
@@ -44,18 +46,21 @@ function ProfileButton({ user }) {
 
   return (
     <>
-      <button onClick={toggleMenu}>
-        <FaUserAlt />
+      <button className='profileButton' onClick={toggleMenu}>
+        <IoIosMenu />
+        <FaUserCircle />
       </button>
-      <ul className={ulClassName} ref={ulRef}>
+      <ul className={ulClassName} id='profileMenu' ref={ulRef}>
       {user ? (
           <>
-            <li>{user.username}</li>
-            <li>{user.firstName} {user.lastName}</li>
-            <li>{user.email}</li>
-            <li>
-              <button onClick={logout}>Log Out</button>
-            </li>
+            <p>Hello, {user.firstName}</p>
+            <p>{user.email}</p>
+            <p>
+              <button className='manageSpotsButton' /*onClick={}*/>Manage Spots</button>
+            </p>
+            <p>
+              <button className='logoutButton' onClick={logout}>Log Out</button>
+            </p>
           </>
         ) : (
           <>

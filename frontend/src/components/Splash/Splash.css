@@ -1,0 +1,50 @@
+.spotSection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 4fr));
+  margin-top: 20px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 20px;
+}
+
+.spotCard {
+  max-width: 250px;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+
+.spotCardPrice {
+  font-weight: bold;
+}
+
+.spotCardInfoImg {
+  height: 15rem;
+  width: 15rem;
+}
+
+.spotCardText {
+  display: flex;
+  justify-content: space-between;
+}
+
+
+.spotCard .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.spotCard:hover .tooltiptext {
+  visibility: visible;
+}

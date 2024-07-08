@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
-import Navigation from './components/Navigation/Navigation'
+import Header from './components/Header/Header';
+import Splash from './components/Splash/Splash'
 import * as sessionActions from './store/session';
 
 function Layout() {
@@ -18,7 +19,7 @@ function Layout() {
 
   return (
     <>
-      <Navigation isLoaded={isLoaded} />
+      <Header isLoaded={isLoaded}/>
       {isLoaded && <Outlet />}
     </>
   );
@@ -30,7 +31,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <h1>Welcome!</h1>
+        element: <Splash />
       }
     ]
   }
