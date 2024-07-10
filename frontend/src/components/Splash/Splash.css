@@ -1,6 +1,6 @@
 .spotSection {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 4fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 4fr));
   margin-top: 20px;
   max-width: 1000px;
   margin-left: auto;
@@ -47,4 +47,10 @@
 
 .spotCard:hover .tooltiptext {
   visibility: visible;
+}
+
+.starRating {
+  width: 70px;
+  display: flex;
+  justify-content: end;
 }

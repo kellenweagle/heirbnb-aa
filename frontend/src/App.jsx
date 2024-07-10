@@ -1,10 +1,10 @@
 // frontend/src/App.jsx
-
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Splash from './components/Splash/Splash'
+import SpotDetails from './components/SpotDetails/SpotDetails'
 import * as sessionActions from './store/session';
 
 function Layout() {
@@ -32,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <Splash />
+      },
+      {
+        path: '/spots/:id',
+        element: <SpotDetails />
       }
     ]
   }

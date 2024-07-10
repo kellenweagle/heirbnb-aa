@@ -70,8 +70,8 @@ const Splash = () => {
                 <div className="spotCardInfo">
                   <img className="spotCardInfoImg" src={spot.previewImage} />
                   <div className="spotCardText">
-                    <div>{spot.city}, {spot.state}</div>
-                    <div><FaStar />{spot.avgRating ? spot.avgRating : "New"}</div>
+                    <span>{spot.city}, {spot.state}</span>
+                    <span className="starRating"><FaStar /> {spot.avgRating ? spot.avgRating.toFixed(1) : "New"}</span>
                   </div>
                 </div>
               <div>

@@ -1,7 +1,9 @@
 .newSpotButton {
-  background-color: white;  
+  background-color: green;   
   cursor: pointer;
   font-size: 12pt;
-  color: green;
+  color: white;
   border: none;
+  box-shadow: 2px 2px 2px rgb(83, 83, 83);
+  padding: 5px;
 }

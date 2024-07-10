@@ -1,0 +1,43 @@
+div {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.spotDetails {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.spotDetailsInfo {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(83, 83, 83);
+}
+
+.spotDetailsReserve {
+  border-radius: 20px;
+  border: 1px solid rgb(83, 83, 83);
+  display: inline-block;
+  padding: 20px;
+  width: 300px;
+  height: 70px;
+}
+
+.spotDetailsPriceAndRev {
+  display: flex;
+  justify-content: space-between;
+}
+
+.spotPrice {
+  font-weight: bold;
+}
+
+.reserveButton {
+  background-color: green;
+  width: 300px;
+  height: 30px;
+  margin-top: 15px;
+  cursor: pointer;
+  color: white;
+  box-shadow: 2px 2px 2px rgb(83, 83, 83);
+}

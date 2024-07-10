@@ -48,7 +48,9 @@ function ProfileButton({ user }) {
     <>
       <button className='profileButton' onClick={toggleMenu}>
         <IoIosMenu />
-        <FaUserCircle />
+        <div className='profileIcon'>
+          <FaUserCircle />
+        </div>
       </button>
       <ul className={ulClassName} id='profileMenu' ref={ulRef}>
       {user ? (
