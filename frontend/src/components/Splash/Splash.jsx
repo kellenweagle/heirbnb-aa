@@ -62,11 +62,11 @@ const Splash = () => {
       <div className="spotSection">
         {spots.map((spot, idx)=> (
             <div
-              className="spotCard"
+              className="spot-card"
               key={`${idx}-${spot.id}`}
               onClick={e => goToSpot(e, spot)}
               >
-                <span className="tooltiptext">test</span>
+                <span className="tooltip-text" id="top">{spot.name}</span>
                 <div className="spotCardInfo">
                   <img className="spotCardInfoImg" src={spot.previewImage} />
                   <div className="spotCardText">
@@ -74,7 +74,7 @@ const Splash = () => {
                     <span className="starRating"><FaStar /> {spot.avgRating ? spot.avgRating.toFixed(1) : "New"}</span>
                   </div>
                 </div>
-              <div>
+              <div> 
                 <span className="spotCardPrice">${spot.price} </span>
                 <span>night</span>
               </div>

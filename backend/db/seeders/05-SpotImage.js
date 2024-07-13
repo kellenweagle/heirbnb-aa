@@ -12,11 +12,11 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   async up (queryInterface, Sequelize) {
      await queryInterface.bulkInsert(options, [
-      {
-      spotId: 1,
-      url: "https://wallpapers.com/images/high/nice-house-pictures-wiwo3snr72rar3h6.webp",
-      preview: true
-     },
+     {spotId: 1, url: "../../../images/spotImages/1-1.webp", preview: true},
+     {spotId: 1, url: "../../../images/spotImages/1-2.webp", preview: false},
+     {spotId: 1, url: "../../../images/spotImages/1-3.webp", preview: false},
+     {spotId: 1, url: "../../../images/spotImages/1-4.webp", preview: false},
+     {spotId: 1, url: "../../../images/spotImages/1-5.webp", preview: false},
      {
       spotId: 2,
       url: "https://wallpapers.com/images/high/nice-house-pictures-sm570gfmq3kzppe9.webp",

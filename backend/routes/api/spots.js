@@ -349,7 +349,7 @@ router.get('/:spotId', async(req, res, next) => {
 router.post('/', requireAuth, validateSpot, async(req, res, next) => {
   try {
 
-    const {address, city, state, country, lat, lng, name, description, price} = req.body;
+    const {address, city, state, country, lat, lng, name, description, price, images} = req.body;
 
     const { user } = req;
 
@@ -370,25 +370,45 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
         description,
         price
       })
+    
+    if(newSpot) {
+      const formattedNewImage = [];
 
-    let formattedNewSpot = {
-      "id": newSpot.id,
-      "ownerId": newSpot.ownerId,
-      "address": newSpot.address,
-      "city": newSpot.city,
-      "state": newSpot.state,
-      "country": newSpot.country,
-      "lat": Number(newSpot.lat),
-      "lng": Number(newSpot.lng),
-      "name": newSpot.name,
-      "description": newSpot.description,
-      "price": Number(newSpot.price),
-      "createdAt": dateFormatter(newSpot.createdAt),
-      "updatedAt": dateFormatter(newSpot.updatedAt)
+      for (let image of images) {
+
+        const spotImages = await SpotImage.create({
+          spotId: newSpot.id,
+          url: image.url,
+          preview: image.preview
+        })
+
+        formattedNewImage.push({spotImages})
+      }
+      let formattedNewSpot = {
+        "id": newSpot.id,
+        "ownerId": newSpot.ownerId,
+        "address": newSpot.address,
+        "city": newSpot.city,
+        "state": newSpot.state,
+        "country": newSpot.country,
+        "lat": Number(newSpot.lat),
+        "lng": Number(newSpot.lng),
+        "name": newSpot.name,
+        "description": newSpot.description,
+        "price": Number(newSpot.price),
+        "createdAt": dateFormatter(newSpot.createdAt),
+        "updatedAt": dateFormatter(newSpot.updatedAt),
+        "numReviews": 0,
+        "avgStarRating": 0,
+        "images": formattedNewImage,
+        "Owner": {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName
+        }
+      }
+      return res.status(201).json(formattedNewSpot)
     }
-
-    return res.status(201).json(formattedNewSpot)
-
   } catch(e) {
     next(e)
   }

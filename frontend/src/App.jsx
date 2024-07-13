@@ -5,7 +5,9 @@ import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Splash from './components/Splash/Splash'
 import SpotDetails from './components/SpotDetails/SpotDetails'
+import CreateASpot from './components/CreateASpot/CreateASpot';
 import * as sessionActions from './store/session';
+import NotFoundPage from './components/NotFoundPage/NotFoundPage';
 
 function Layout() {
   const dispatch = useDispatch();
@@ -36,6 +38,14 @@ const router = createBrowserRouter([
       {
         path: '/spots/:id',
         element: <SpotDetails />
+      },
+      {
+        path: '/spots',
+        element: <CreateASpot />
+      },
+      {
+        path: '/*',
+        element: <NotFoundPage />
       }
     ]
   }

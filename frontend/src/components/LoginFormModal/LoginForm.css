@@ -2,3 +2,13 @@ h1 {
   display: flex;
   justify-content: center;
 }
+
+.login-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#modal-content {
+  border-radius: 10px;
+}

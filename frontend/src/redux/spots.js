@@ -1,9 +1,11 @@
+import { post } from "../../../backend/routes/api/spots";
 import { csrfFetch } from "../store/csrf";
 
 //CONSTRANTS
 const GET_ALL_SPOTS = "spots/getAllSpots"
 const GET_SPOT = "spot/getSpot"
 const GET_REVIEWS = "spot/getReviews"
+// const CREATE_SPOT = "spot/createSpot"
 
 //ACTION CREATORS
 const getAllSpots = (spots) => ({
@@ -20,6 +22,11 @@ const getReviews = (reviews) => ({
   type: GET_REVIEWS,
   payload: reviews
 })
+
+// const createSpot = (spot) => ({
+//   type: CREATE_SPOT,
+//   payload: spot
+// })
 
 //THUNKS
 export const getSpotsThunk = () => async(dispatch) => {
@@ -49,6 +56,31 @@ export const getSpotsDetailsThunk = (id) => async(dispatch) => {
   } catch(e) {
     return e;
   }
+}
+
+export const createSpotThunk = (spotToCreate, images) => async(dispatch) => {
+  // try {
+  //   const fullSpot = {
+  //     ...spotToCreate, images: [...images]
+  //   }
+  //   const options = {
+  //     method: 'POST',
+  //     header: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify(fullSpot)
+  //   }
+
+  //   const spot = await csrfFetch('/api/spots', options)
+
+  //   if(spot.ok) {
+  //     const data = await spot.json()
+
+  //     await dispatch(createSpot(data.formattedNewSpot))
+
+  //     return data
+  //   }
+  // } catch(e) {
+  //   return e;
+  // }
 }
 
 export const getSpotReviewsThunk = (id) => async(dispatch) => {
@@ -95,8 +127,15 @@ function spotsReducer(state = initialState, action) {
       for(let review of action.payload.Reviews) {
         newState.byId[review.id] = review;
       }
-      console.log('.........', newState.allReviews)
       return newState;
+    // case CREATE_SPOT:
+    //   newState = {...state};
+
+    //   newState.createSpot = [action.payload, ...newState.allSpots];
+  
+    //   newState.byId = {...newState.byId, [action.payload.id]: action.payload}
+
+    //   return newState
     default:
       return state;
   }
