@@ -5,7 +5,7 @@ import { csrfFetch } from "../store/csrf";
 const GET_ALL_SPOTS = "spots/getAllSpots"
 const GET_SPOT = "spot/getSpot"
 const GET_REVIEWS = "spot/getReviews"
-// const CREATE_SPOT = "spot/createSpot"
+const CREATE_SPOT = "spot/createSpot"
 
 //ACTION CREATORS
 const getAllSpots = (spots) => ({
@@ -23,10 +23,10 @@ const getReviews = (reviews) => ({
   payload: reviews
 })
 
-// const createSpot = (spot) => ({
-//   type: CREATE_SPOT,
-//   payload: spot
-// })
+const createSpot = (spot) => ({
+  type: CREATE_SPOT,
+  payload: spot
+})
 
 //THUNKS
 export const getSpotsThunk = () => async(dispatch) => {
@@ -59,28 +59,28 @@ export const getSpotsDetailsThunk = (id) => async(dispatch) => {
 }
 
 export const createSpotThunk = (spotToCreate, images) => async(dispatch) => {
-  // try {
-  //   const fullSpot = {
-  //     ...spotToCreate, images: [...images]
-  //   }
-  //   const options = {
-  //     method: 'POST',
-  //     header: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify(fullSpot)
-  //   }
+  try {
+    const fullSpot = {
+      ...spotToCreate, images: [...images]
+    }
+    const options = {
+      method: 'POST',
+      header: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(fullSpot)
+    }
 
-  //   const spot = await csrfFetch('/api/spots', options)
+    const spot = await csrfFetch('/api/spots', options)
 
-  //   if(spot.ok) {
-  //     const data = await spot.json()
+    if(spot.ok) {
+      const data = await spot.json()
 
-  //     await dispatch(createSpot(data.formattedNewSpot))
+      await dispatch(createSpot(data.formattedNewSpot))
 
-  //     return data
-  //   }
-  // } catch(e) {
-  //   return e;
-  // }
+      return data
+    }
+  } catch(e) {
+    return e;
+  }
 }
 
 export const getSpotReviewsThunk = (id) => async(dispatch) => {
@@ -128,14 +128,14 @@ function spotsReducer(state = initialState, action) {
         newState.byId[review.id] = review;
       }
       return newState;
-    // case CREATE_SPOT:
-    //   newState = {...state};
+    case CREATE_SPOT:
+      newState = {...state};
 
-    //   newState.createSpot = [action.payload, ...newState.allSpots];
+      newState.createSpot = [action.payload, ...newState.allSpots];
   
-    //   newState.byId = {...newState.byId, [action.payload.id]: action.payload}
+      newState.byId = {...newState.byId, [action.payload.id]: action.payload}
 
-    //   return newState
+      return newState
     default:
       return state;
   }

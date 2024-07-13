@@ -349,7 +349,7 @@ router.get('/:spotId', async(req, res, next) => {
 router.post('/', requireAuth, validateSpot, async(req, res, next) => {
   try {
 
-    const {address, city, state, country, lat, lng, name, description, price, images} = req.body;
+    const {address, city, state, country, lat, lng, name, description, price, images} = req.body  ;
 
     const { user } = req;
 
@@ -382,7 +382,7 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
           preview: image.preview
         })
 
-        formattedNewImage.push({spotImages})
+        // formattedNewImage.push({spotImages})
       }
       let formattedNewSpot = {
         "id": newSpot.id,

@@ -46,31 +46,31 @@ const CreateASpot = () => {
     setValidationErrors(errors);  
   }, [country, streetAddress, city, state, latitude, longitude, description, title, price, previewImg, imageOne, imageTwo, imageThree, imageFour])
 
-  // const onSubmit = async (e) => {
-  //   setHasSubmitted(true);
-  //   e.preventDefault();
-  //   e.stopPropogation();
+  const onSubmit = async (e) => {
+    setHasSubmitted(true);
+    e.preventDefault();
+    e.stopPropogation();
 
-  //   const images = [
-  //     { url: previewImg, preview: true },
-  //     { url: imageOne || <img src="../../../../images/spotImages/noImage.jpg"/>, preview: false },
-  //     { url: imageTwo || <img src="../../../../images/spotImages/noImage.jpg"/>, preview: false },
-  //     { url: imageThree || <img src="../../../../images/spotImages/noImage.jpg"/>, preview: false },
-  //     { url: imageFour || <img src="../../../../images/spotImages/noImage.jpg"/>, preview: false }
-  //   ]
+    const images = [
+      { url: previewImg, preview: true },
+      { url: imageOne || <img src="../../../../images/spotImages/noImage.jpg"/>, preview: false },
+      { url: imageTwo || <img src="../../../../images/spotImages/noImage.jpg"/>, preview: false },
+      { url: imageThree || <img src="../../../../images/spotImages/noImage.jpg"/>, preview: false },
+      { url: imageFour || <img src="../../../../images/spotImages/noImage.jpg"/>, preview: false }
+    ]
 
-  //   const spot = { country, streetAddress, city, state, latitude, longitude, description, title, price}
+    const spot = { country, streetAddress, city, state, latitude, longitude, description, title, price}
 
-  //   const createdSpot = await dispatch(createSpotThunk(spot, images))
+    const createdSpot = await dispatch(createSpotThunk(spot, images))
 
-  //   if(!createdSpot.ok && createdSpot.ok !== undefined) {
-  //     const data = await createdSpot.json();
-  //     setSubmitErrors(data.errors);
-  //   } else {
-  //     const createdSpotId = createdSpot.formattedNewSpot.id;
-  //     navigate(`/spots/${createdSpotId}`)
-  //   }
-  // }
+    if(!createdSpot.ok && createdSpot.ok !== undefined) {
+      const data = await createdSpot.json();
+      setSubmitErrors(data.errors);
+    } else {
+      const createdSpotId = createdSpot.formattedNewSpot.id;
+      navigate(`/spots/${createdSpotId}`)
+    }
+  }
 
   return (
     <div 
