@@ -33,7 +33,7 @@ const CreateASpot = () => {
 
   useEffect(() => {
     if(!form.city.length) form.errors['city'] = "City is required";
-  }, [form.city])
+  }, [form.city, form.errors])
 
   // CUSTOM FUNCS 
 
