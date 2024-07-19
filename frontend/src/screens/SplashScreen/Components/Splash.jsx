@@ -1,21 +1,20 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getSpotsThunk } from "../../redux/spots";
 import { FaStar } from "react-icons/fa";
 import './Splash.css'
 import { useNavigate } from "react-router-dom";
+import { getSpotsThunk } from "../../../store/spots";
 
 const Splash = () => {
+  // HOOKS
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // HOOKS - manage state
   const spots = useSelector((state) => state.spotState.allSpots);
-  console.log(spots)
-  // const user = useSelector((state) => state.session.user);
-
   const [isLoaded, setIsLoaded] = useState(false);
-  // const [newTweet, setNewSpot] = useState("");
-  // const [errors, setErrors] = useState({});
 
+
+  // USE EFFECTS
   useEffect(() => {
     const getData = async() => {
       // grab the data from the backend
@@ -29,15 +28,16 @@ const Splash = () => {
     }
   }, [dispatch, isLoaded, spots])
 
-  // const handleButtonClick = async() => {
-  //   const form = {
-  //     user,
-  //     newSpot
-  //   }
+  // Custom FUNCTIONS and variables
 
-  //   const res = await dispatch()
+  const goToSpot = (e, spot) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  // }
+    navigate(`/spots/${spot.id}`)
+  }
+
+  // JSX
 
   if(!isLoaded){
     setTimeout(()=> {
@@ -46,32 +46,23 @@ const Splash = () => {
       alt="loading animation"
       style={{height: '30px', width: '30px'}}
       />
-    }, 1000
-    )
+    }, 1000)
   }
-
-  const goToSpot = (e, spot) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    navigate(`/spots/${spot.id}`)
-  }
-
   return (
     <>
       <div className="spotSection">
         {spots.map((spot, idx)=> (
             <div
-              className="spotCard"
+              className="spot-card"
               key={`${idx}-${spot.id}`}
               onClick={e => goToSpot(e, spot)}
               >
-                <span className="tooltiptext">test</span>
+                <span className="tooltip-text" id="top">{spot.name}</span>
                 <div className="spotCardInfo">
                   <img className="spotCardInfoImg" src={spot.previewImage} />
                   <div className="spotCardText">
-                    <div>{spot.city}, {spot.state}</div>
-                    <div><FaStar />{spot.avgRating ? spot.avgRating : "New"}</div>
+                    <span>{spot.city}, {spot.state}</span>
+                    <span className="starRating"><FaStar /> {spot.avgRating ? spot.avgRating.toFixed(1) : "New"}</span>
                   </div>
                 </div>
               <div>

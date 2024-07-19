@@ -44,11 +44,11 @@ module.exports = {
       },
       lat: {
         type: Sequelize.DECIMAL,
-        allowNull: false
+        allowNull: true
       },
       lng: {
         type: Sequelize.DECIMAL,
-        allowNull: false
+        allowNull: true
       },
       name: {
         type: Sequelize.STRING(50),
@@ -56,7 +56,7 @@ module.exports = {
         unique: true
       },
       description: {
-        type: Sequelize.STRING(250),
+        type: Sequelize.STRING(500),
         allowNull: false
       },
       price: {

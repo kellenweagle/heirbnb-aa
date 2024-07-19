@@ -8,9 +8,9 @@ function Navigation({ isLoaded }) {
   return (
     <div>
       {isLoaded && (
-        <p>
+        <div>
           <ProfileButton user={sessionUser} />
-        </p>
+        </div>
       )}
     </div>
   );

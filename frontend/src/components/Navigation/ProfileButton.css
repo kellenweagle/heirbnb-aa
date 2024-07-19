@@ -6,6 +6,15 @@
   cursor: pointer;
   flex-direction: row;
   gap: 2pt;
+  border: 1px solid rgb(83, 83, 83);
+  border-radius: 3rem;
+  height: 50px;
+  padding: 10px;
+  box-shadow: 2px 2px 2px rgb(83, 83, 83);
+}
+
+.profileIcon {
+  color:rgb(120, 191, 206);
 }
 
 .logoutButton {
@@ -38,4 +47,13 @@
   text-align: left;
   width: 150pt;
   height: 120pt;
+  z-index: 999;
+}
+
+.login-profile {
+  cursor: pointer;
+}
+
+.signup-button {
+  cursor: pointer;
 }
