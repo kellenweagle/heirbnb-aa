@@ -9,8 +9,10 @@ import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal/LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
 import './ProfileButton.css'
+import { useNavigate } from 'react-router-dom';
 
 function ProfileButton({ user }) {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef()
@@ -36,50 +38,61 @@ function ProfileButton({ user }) {
 
   const closeMenu = () => setShowMenu(false);
 
+  const manageSpots = (e) => {
+    e.preventDefault();
+    closeMenu();
+    navigate('/spots/manage');
+  }
+
   const logout = (e) => {
     e.preventDefault();
     dispatch(sessionActions.logout());
     closeMenu();
+    navigate('/');
   };
 
   const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
 
   return (
-    <>
+    <div>
       <button className='profileButton' onClick={toggleMenu}>
         <IoIosMenu />
         <div className='profileIcon'>
           <FaUserCircle />
         </div>
       </button>
-      <ul className={ulClassName} id='profileMenu' ref={ulRef}>
+      <div className={ulClassName} id='profileMenu' ref={ulRef}>
       {user ? (
-          <>
-            <p>Hello, {user.firstName}</p>
-            <p>{user.email}</p>
-            <p>
-              <button className='manageSpotsButton' /*onClick={}*/>Manage Spots</button>
-            </p>
-            <p>
+          <div>
+            <div>Hello, {user.firstName}</div>
+            <div>{user.email}</div>
+            <div>
+              <button className='manageSpotsButton' onClick={manageSpots}>Manage Spots</button>
+            </div>
+            <div>
               <button className='logoutButton' onClick={logout}>Log Out</button>
-            </p>
-          </>
+            </div>
+          </div>
         ) : (
-          <>
-            <OpenModalMenuItem
-              itemText="Log In"
-              onItemClick={closeMenu}
-              modalComponent={<LoginFormModal />}
-            />
-            <OpenModalMenuItem
-              itemText="Sign Up"
-              onItemClick={closeMenu}
-              modalComponent={<SignupFormModal />}
-            />
-          </>
+          <div className='not-logged'>
+            <div className="login-profile">
+              <OpenModalMenuItem
+                itemText="Log In"
+                onItemClick={closeMenu}
+                modalComponent={<LoginFormModal />}
+              />
+            </div>
+            <div className="signup-button">
+              <OpenModalMenuItem
+                itemText="Sign Up"
+                onItemClick={closeMenu}
+                modalComponent={<SignupFormModal />}
+              />
+            </div>
+          </div>
         )}
-      </ul>
-    </>
+      </div>
+    </div>
   );
 }
 

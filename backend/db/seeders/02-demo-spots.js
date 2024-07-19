@@ -19,7 +19,7 @@ module.exports = {
         {
           ownerId: 1,
           address: "123 Miami Home St",
-          city: "Miama",
+          city: "Miami",
           state: "Florida",
           country: "United States of America",
           lat: 37.7645358,

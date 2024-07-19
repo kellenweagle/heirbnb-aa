@@ -1,31 +1,33 @@
 import { useEffect, useState } from 'react'
 import { useParams} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSpotReviewsThunk, getSpotsDetailsThunk } from '../../redux/spots';
 import { FaStar } from "react-icons/fa";
 import './SpotDetails.css'
+import { getSpotReviewsThunk, getSpotsThunk } from '../../../store/spots';
 
 export default function SpotDetails() {
   const dispatch = useDispatch();
   const { id } = useParams();
-  const spot = useSelector((state) => state.spotState.singleSpot)
+  const spot = useSelector((state) => state.spotState.byId[id])
   const reviews = useSelector((state) => state.spotState.allReviews)
+  const sessionUser = useSelector((state) => state.session.user)
+
+  console.log(spot, "************************** spot")
+  console.log(reviews)
 
   const [isLoaded, setIsLoaded] = useState(false)
 
-  console.log(spot)
-
   useEffect(() => {
     const getData = async() => {
-      await dispatch(getSpotsDetailsThunk(id));
+      await dispatch(getSpotsThunk());
       await dispatch(getSpotReviewsThunk(id))
       setIsLoaded(true);
     }
 
-    if(!isLoaded) {
+    if(!isLoaded || spot === undefined) {
       getData()
     } 
-  }, [dispatch, id, isLoaded])
+  }, [dispatch, id, isLoaded, spot])
 
   if(!isLoaded || spot === undefined) {
     return (
@@ -33,7 +35,14 @@ export default function SpotDetails() {
     )
   }
 
-  console.log('*************', reviews[0])
+  const isUserOwner = () => {
+    // if the session user is not the spot owner, return true. otherwise return false.
+    if(sessionUser.id !== spot.Owner.id) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   return (
     <div className='spotDetails'>
@@ -66,7 +75,7 @@ export default function SpotDetails() {
               <span className='spotPrice'>${spot.price} </span>
               <span > night</span>
             </div>
-            <span><FaStar /> {spot.avgStarRating === null ? `${spot.avgStarRating ? spot.avgStarRating.toFixed(1) : 'New'}` : `${spot.avgStarRating ? spot.avgStarRating.toFixed(1) : 'New'} · ${spot.numReviews === 1 ? `${spot.numReviews} Review`: `${spot.numReviews} Reviews`}`}</span>
+            <span><FaStar /> {spot.numReviews === 0 ? "New" : `${spot.avgRating.toFixed(1)} · ${spot.numReviews === 1 ? `${spot.numReviews} Review`: `${spot.numReviews} Reviews`}`}</span>
           </div>
           <button 
             className='reserveButton'
@@ -75,19 +84,22 @@ export default function SpotDetails() {
         </div>
       </div>
       <div>
-        <h2><FaStar /> {spot.avgStarRating} · {spot.numReviews} reviews</h2>
+        <h2><FaStar /> {spot.numReviews === 0 ? "New" : `${spot.avgRating.toFixed(1)} · ${spot.numReviews === 1 ? `${spot.numReviews} Review`: `${spot.numReviews} Reviews`}`}</h2>
       </div>
-      <ul className='reviews'>
-        {reviews.map((review, idx) => (
-        <li key={`${idx}-${review.id}`}>
-          <h3 className='reviewUserName'>{review.User.firstName}</h3>
-          <p>
-            {review.review}
-          </p>
-        
-        </li>
-      ))}
-      </ul>
+      <div>
+        {isUserOwner && !spot.numReviews ? "Be the first to post a review!" : 
+          <ul className='reviews'>
+          {reviews.map((review, idx) => (
+          <li key={`${idx}-${review.id}`}>
+            <h3 className='reviewUserName'>{review.User.firstName}</h3>
+            <p>
+              {review.review}
+            </p>
+          </li>
+        ))}
+        </ul>
+        }
+      </div>
     </div>
   )
 }

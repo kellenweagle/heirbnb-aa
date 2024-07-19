@@ -6,9 +6,11 @@
     "sequelize": "sequelize",
     "sequelize-cli": "sequelize-cli",
     "start": "per-env",
+    "db:build":"npx dotenv sequelize db:migrate && npx dotenv sequelize db:seed:all",
+    "db:reset":"npx dotenv sequelize db:seed:undo:all && npm dotenv sequelize db:migrate:undo:all",
     "start:development": "nodemon ./bin/www",
     "start:production": "node ./bin/www",
-    "build": "node psql-setup-script.js"
+    "build": "node psql-setup-script.s"
   },
   "keywords": [],
   "author": "",

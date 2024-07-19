@@ -5,7 +5,7 @@ function Logo() {
   return (
     <div className="logo">
       <LuCrown className="logoImg"/>
-      <p className="logoName">Heirbnb</p>
+      <span className="logoName">Heirbnb</span>
     </div>
   )
 }

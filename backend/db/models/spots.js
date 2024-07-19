@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Spot.belongsTo(models.User, {
         foreignKey: 'ownerId',
+        as: "Owner",
         onDelete: "CASCADE"
       });
 
@@ -23,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Spot.init({
-    address: { 
+    address: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
@@ -54,11 +55,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     lat: {
       type: DataTypes.DECIMAL,
-      allowNull: false
+      allowNull: true
     },
     lng: {
       type: DataTypes.DECIMAL,
-      allowNull: false
+      allowNull: true
     },
     name: {
       type: DataTypes.STRING,
@@ -72,7 +73,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        len: [1, 250]
+        len: [1, 500]
       }
     },
     price: {

@@ -1,6 +1,6 @@
 // frontend/src/components/LoginFormModal/LoginFormModal.jsx
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as sessionActions from '../../store/session';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
@@ -13,6 +13,11 @@ function LoginFormModal() {
   const [errors, setErrors] = useState({});
   const { closeModal } = useModal();
 
+  const handleDemoUser = (e) => {
+    return dispatch(sessionActions.login({credential: 'Demo-lition', password: 'password'}))
+    .then(closeModal)
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setErrors({});
@@ -20,6 +25,7 @@ function LoginFormModal() {
       .then(closeModal)
       .catch(async (res) => {
         const data = await res.json();
+        console.log(res, '************')
         if (data && data.errors) {
           setErrors(data.errors);
         }
@@ -32,31 +38,41 @@ function LoginFormModal() {
       <div className='login-info'>
         <form onSubmit={handleSubmit}>
           <div>
-            <label>
-              <input
-                type="text"
-                placeholder='Username or Email'
-                value={credential}
-                onChange={(e) => setCredential(e.target.value)}
-                required
-              />
-            </label>
+            <div className='login-credentials'>
+                <label>
+                  <input
+                    type="text"
+                    placeholder='Username or Email'
+                    value={credential}
+                    onChange={(e) => setCredential(e.target.value)}
+                    required
+                  />
+                </label>
+            </div>
+            <div>
+                <label>
+                  <input
+                    type="password"
+                    placeholder='Password'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </label>
+            </div>
+              {errors.credential && (
+                <p>{errors.credential}</p>
+              )}
+            <button 
+              className='login-button' 
+              type="submit"
+              disabled={credential.length < 4 || password.length < 6}
+            >Log In</button>
+            <button
+              className='demo-user'
+              onClick={handleDemoUser}
+            >Demo User</button>
           </div>
-          <div>
-            <label>
-              <input
-                type="password"
-                placeholder='Password'
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </label>
-          </div>
-          {errors.credential && (
-            <p>{errors.credential}</p>
-          )}
-          <button className='login-button' type="submit">Log In</button>
         </form>
       </div>
     </div>

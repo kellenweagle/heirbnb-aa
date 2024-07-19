@@ -26,12 +26,6 @@ check('state')
 check('country')
   .exists({ checkFalsy: true })
   .withMessage('Country is required'),
-check('lat')
-  .exists({ checkFalsy: true })
-  .withMessage('Latitude is not valid'),
-check('lng')
-  .exists({ checkFalsy: true })
-  .withMessage('Longitude is not valid'),
 check('name')
   .exists({ checkFalsy: true })
   .isLength({ max: 50 })
@@ -105,7 +99,7 @@ function dateFormatter(date) {
 router.get('/', validateQueryParameters, async(req, res, next) => {
   try {
     let { page, size, maxLat, minLat, maxLng, minLng, maxPrice, minPrice } = req.query;
-    
+
     page = parseInt(page);
     size = parseInt(size);
 
@@ -164,6 +158,15 @@ router.get('/', validateQueryParameters, async(req, res, next) => {
 
     const spots = await Spot.findAll({
       where,
+      include: [{
+        model: SpotImage,
+        as: "SpotImages",
+        attributes: ['id', 'url', 'preview']
+      }, {
+        model: User,
+        as: "Owner",
+        attributes: ["id", "firstName", "lastName"]
+      }],
       limit: size,
       offset: parseInt((page - 1) * size)
     });
@@ -206,8 +209,11 @@ router.get('/', validateQueryParameters, async(req, res, next) => {
         price: Number(spot.price),
         createdAt: dateFormatter(spot.createdAt),
         updatedAt: dateFormatter(spot.updatedAt),
+        numReviews: reviews.length,
         avgRating: sum / reviews.length,
-        previewImage: preview
+        previewImage: preview,
+        SpotImages: spot.SpotImages,
+        Owner: spot.Owner
       })
     };
 
@@ -252,7 +258,7 @@ router.get('/current', requireAuth, async(req, res, next) => {
           preview += spotImage.url
         }
       }
-      
+
      if(user.id === spot.ownerId) {
        spotArr.push({
          id: spot.id,
@@ -310,7 +316,7 @@ router.get('/:spotId', async(req, res, next) => {
 
     if(owner) {
       let spotArr = []
-    
+
       spotArr.push({
         id: spots.id,
         ownerId: spots.ownerId,
@@ -326,7 +332,7 @@ router.get('/:spotId', async(req, res, next) => {
         createdAt: dateFormatter(spots.createdAt),
         updatedAt: dateFormatter(spots.updatedAt),
         numReviews: reviews.length,
-        avgStarRating: sum / reviews.length,
+        avgStarRating: (sum / reviews.length).toFixed(1),
         SpotImages: spotImages,
         Owner: {
           id: owner.id,
@@ -334,9 +340,9 @@ router.get('/:spotId', async(req, res, next) => {
           lastName: owner.lastName
         }
       })
-  
+
       let resSpot = spotArr[0];
-  
+
       res.json(resSpot)
     }
 
@@ -349,7 +355,21 @@ router.get('/:spotId', async(req, res, next) => {
 router.post('/', requireAuth, validateSpot, async(req, res, next) => {
   try {
 
-    const {address, city, state, country, lat, lng, name, description, price, images} = req.body  ;
+    const {
+      address,
+      city,
+      state,
+      country,
+      name,
+      description,
+      price,
+      previewImage,
+      image1,
+      image2,
+      image3,
+      image4,
+    } = req.body;
+
 
     const { user } = req;
 
@@ -358,32 +378,36 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
         throw error
     }
 
+    console.log(name, "this is the name !")
+
     const newSpot = await Spot.create({
-      ownerId: user.id,
-      address,
+        ownerId: user.id,
+        address,
         city,
         state,
         country,
-        lat,
-        lng,
         name,
         description,
         price
       })
-    
+
     if(newSpot) {
-      const formattedNewImage = [];
+      let options = {};
+      options.tableName = "SpotImages";
 
-      for (let image of images) {
-
-        const spotImages = await SpotImage.create({
-          spotId: newSpot.id,
-          url: image.url,
-          preview: image.preview
-        })
-
-        // formattedNewImage.push({spotImages})
+      if (process.env.NODE_ENV === 'production') {
+        options.schema = process.env.SCHEMA;  // define your schema in options object
       }
+      const spotImages = await SpotImage.bulkCreate([
+        { spotId: newSpot.id, url: previewImage, preview: true },
+        { spotId: newSpot.id, url: image1, preview: false },
+        { spotId: newSpot.id, url: image2, preview: false },
+        { spotId: newSpot.id, url: image3, preview: false },
+        { spotId: newSpot.id, url: image4, preview: false },
+      ], options)
+
+      console.log(spotImages)
+
       let formattedNewSpot = {
         "id": newSpot.id,
         "ownerId": newSpot.ownerId,
@@ -400,7 +424,7 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
         "updatedAt": dateFormatter(newSpot.updatedAt),
         "numReviews": 0,
         "avgStarRating": 0,
-        "images": formattedNewImage,
+        "previewImage": previewImage,
         "Owner": {
           id: user.id,
           firstName: user.firstName,
@@ -418,7 +442,7 @@ router.post('/', requireAuth, validateSpot, async(req, res, next) => {
 router.put('/:spotId', requireAuth, validateSpot, async(req, res, next) => {
   try {
 
-    const {address, city, state, country, lat, lng, name, description, price} = req.body
+    const {address, city, state, country, name, description, price} = req.body
 
     const { user } = req;
     const id = req.params.spotId
@@ -441,8 +465,6 @@ router.put('/:spotId', requireAuth, validateSpot, async(req, res, next) => {
         city,
         state,
         country,
-        lat,
-        lng,
         name,
         description,
         price
@@ -455,8 +477,6 @@ router.put('/:spotId', requireAuth, validateSpot, async(req, res, next) => {
       "city": updatedSpot.city,
       "state": updatedSpot.state,
       "country": updatedSpot.country,
-      "lat": Number(updatedSpot.lat),
-      "lng": Number(updatedSpot.lng),
       "name": updatedSpot.name,
       "description": updatedSpot.description,
       "price": Number(updatedSpot.price),
@@ -486,13 +506,11 @@ router.delete('/:spotId', requireAuth, async(req, res, next) => {
     if(user.id !== spotToDelete.ownerId) {
       const error = new CustomError("Forbidden", 403);
       throw error;
-    } 
+    }
 
     await spotToDelete.destroy()
 
-    res.json({
-      "message": "Successfully deleted"
-    })
+    res.json(spotToDelete)
 
   } catch(e) {
     next(e)
@@ -521,7 +539,7 @@ router.get('/:spotId/reviews', async(req, res, next) => {
     })
 
     res.json({Reviews: reviews})
-    
+
   } catch(e) {
     next(e)
   }
@@ -553,7 +571,7 @@ router.post('/:spotId/reviews', requireAuth, validateReviews, async(req, res, ne
       const error = new CustomError ("Forbidden", 403);
       throw error
     }
-    
+
     if(alreadyReviewed.length > 0) {
       const error = new CustomError ("User already has a review for this spot", 500);
       throw error
@@ -615,7 +633,7 @@ router.post('/:spotId/images', requireAuth, async(req, res, next) => {
       url,
       preview
     })
-    
+
   } catch(e) {
     next(e)
   }
@@ -655,7 +673,7 @@ router.get('/:spotId/bookings', requireAuth, async(req, res, next) => {
               "endDate": dateFormatter(booking.endDate).split(" ")[0]
             }
         )
-      } 
+      }
 
       else {
       resBookings.push(
@@ -680,7 +698,7 @@ router.get('/:spotId/bookings', requireAuth, async(req, res, next) => {
       res.json({
         "Bookings": resBookings
       })
-    
+
   } catch(e) {
     next(e)
   }
@@ -744,13 +762,13 @@ router.post('/:spotId/bookings', requireAuth, async(req, res, next) => {
         error.errors = rangeError
         throw error
       }
-  
+
       if(rangeError.startDate !== "" && rangeError.endDate === "") {
         const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
         error.errors = rangeError.startDate
         throw error
       }
-  
+
       if(rangeError.startDate === "" && rangeError.endDate !== "") {
         const error = new CustomError ("Sorry, this spot is already booked for the specified dates", 403);
         error.errors = rangeError.endDate
