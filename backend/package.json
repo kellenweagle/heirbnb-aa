@@ -10,7 +10,7 @@
     "db:reset":"npx dotenv sequelize db:seed:undo:all && npm dotenv sequelize db:migrate:undo:all",
     "start:development": "nodemon ./bin/www",
     "start:production": "node ./bin/www",
-    "build": "node psql-setup-script.s"
+    "build": "node psql-setup-script.js"
   },
   "keywords": [],
   "author": "",
