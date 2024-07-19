@@ -12,7 +12,6 @@ export default function SpotDetails() {
   const reviews = useSelector((state) => state.spotState.allReviews)
   const sessionUser = useSelector((state) => state.session.user)
 
-  console.log(spot, "************************** spot")
   console.log(reviews)
 
   const [isLoaded, setIsLoaded] = useState(false)
@@ -79,13 +78,16 @@ export default function SpotDetails() {
           </div>
           <button 
             className='reserveButton'
-            onClick={alert("Feature coming soon")}
+            onClick={(e) => alert("Feature coming soon")}
           >Reserve</button>
         </div>
       </div>
       <div>
         <h2><FaStar /> {spot.numReviews === 0 ? "New" : `${spot.avgRating.toFixed(1)} · ${spot.numReviews === 1 ? `${spot.numReviews} Review`: `${spot.numReviews} Reviews`}`}</h2>
-      </div>
+       </div>
+
+      {sessionUser && sessionUser.id !== spot.Owner.id ? <button className='post-review-button'>Post Your Review</button> : ""}
+
       <div>
         {isUserOwner && !spot.numReviews ? "Be the first to post a review!" : 
           <ul className='reviews'>

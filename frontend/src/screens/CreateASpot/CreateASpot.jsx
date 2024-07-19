@@ -57,7 +57,6 @@ const CreateASpot = () => {
     }
 
   }
-  console.log(form.country)
 
   // JSX
   return (

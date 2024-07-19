@@ -6,7 +6,7 @@ export default function CreateASpotButton() {
 
   return (
     <>
-      {sessionUser ? (<button className="newSpotButton">
+      {sessionUser ? (<button className="new-spot-button">
         Create a New Spot
       </button>) : null}
     </>
