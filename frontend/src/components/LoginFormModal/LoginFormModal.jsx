@@ -1,6 +1,6 @@
 // frontend/src/components/LoginFormModal/LoginFormModal.jsx
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as sessionActions from '../../store/session';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
@@ -13,7 +13,7 @@ function LoginFormModal() {
   const [errors, setErrors] = useState({});
   const { closeModal } = useModal();
 
-  const handleDemoUser = (e) => {
+  const handleDemoUser = () => {
     return dispatch(sessionActions.login({credential: 'Demo-lition', password: 'password'}))
     .then(closeModal)
   }

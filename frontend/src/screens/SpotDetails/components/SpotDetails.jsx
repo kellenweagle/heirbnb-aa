@@ -79,7 +79,7 @@ export default function SpotDetails() {
           </div>
           <button 
             className='reserveButton'
-            onClick={(e) => alert("Feature coming soon")}
+            onClick={alert("Feature coming soon")}
           >Reserve</button>
         </div>
       </div>

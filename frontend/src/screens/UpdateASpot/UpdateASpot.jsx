@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import './UpdateASpot.css'
 import {  useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createSpotThunk, getSpotsThunk, updateSpotThunk } from '../../store/spots';
+import { getSpotsThunk, updateSpotThunk } from '../../store/spots';
 
 
 const UpdateASpot = () => {
@@ -49,7 +49,7 @@ const UpdateASpot = () => {
     }
 
 
-  }, [dispatch, form.isLoaded])
+  }, [dispatch, form.isLoaded, spot])
 
   // CUSTOM FUNCS 
 

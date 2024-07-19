@@ -1,4 +1,3 @@
-import React from 'react'
 import "./ManageSpots.css"
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -29,7 +28,7 @@ export default function ManageSpots() {
     if(!isLoaded && !spots.length) {
       getData()
     }
-  }, [dispatch, isLoaded, spots])
+  }, [dispatch, isLoaded, spots, user.id])
 
   const goToSpot = (e, spot) => {
     e.preventDefault();

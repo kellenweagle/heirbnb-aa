@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import './CreateASpot.css'
-import {  useEffect, useState } from 'react';
+import {   useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createSpotThunk } from '../../store/spots';
 
@@ -30,10 +30,6 @@ const CreateASpot = () => {
   })
 
   // USE EFFECTS
-
-  useEffect(() => {
-    if(!form.city.length) form.errors['city'] = "City is required";
-  }, [form.city])
 
   // CUSTOM FUNCS 
 
