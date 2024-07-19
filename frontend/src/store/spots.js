@@ -8,7 +8,8 @@ const CREATE_SPOT = "spot/createSpot"
 const MANAGE_SPOT = "spot/manageSpot"
 const UPDATE_SPOT = "spot/UpdateSpot"
 const DELETE_SPOT = "spot/DeleteSpot"
-const POST_REVIEW = ""
+const POST_REVIEW = "spot/postReview"
+const DELETE_REVIEW = "spot/DeleteReview"
 
 //ACTION CREATORS
 const getAllSpots = (spots) => ({
@@ -49,6 +50,11 @@ const deleteSpot = (deletedSpot) => ({
 const postReview = (review) => ({
   type: POST_REVIEW,
   payload: review
+})
+
+const deleteReview = (deletedReview) => ({
+  type: DELETE_REVIEW,
+  payload: deletedReview
 })
 
 //THUNKS
@@ -209,6 +215,27 @@ export const postReviewThunk = (reviewForm, spotId) => async(dispatch) => {
   }
 }
 
+export const deleteReviewThunk = (review) => async(dispatch) => {
+  try {
+          const options = {
+              method: 'DELETE',
+              header: {'Content-Type': 'application/json'},
+              body: JSON.stringify(review)
+          };
+          const res = await csrfFetch(`/api/reviews/${review.id}`, options);
+          if(res.ok){
+              const data = await res.json();
+              dispatch(deleteReview(data));
+            return data;
+          } else{
+              throw res;
+          }
+
+  } catch (error) {
+      return error;
+  }
+}
+
 //REDUCER
 
 const initialState = {
@@ -216,7 +243,8 @@ const initialState = {
   userSpots: [],
   allReviews: [],
   byId: {},
-  byReviewId: {}
+  byReviewId: {},
+  userReviews: []
 }
 
 function spotsReducer(state = initialState, action) {
@@ -313,6 +341,25 @@ function spotsReducer(state = initialState, action) {
       newState.byId = {...newState.byId, [action.payload.id]: action.payload}
 
       return newState
+    }
+
+    case DELETE_REVIEW: {
+      newState = {...state};
+
+      const filteredReviews = newState.allReviews.filter((review)=> {
+        return review.id !== action.payload.id
+      })
+      const filteredUserReviews = newState.userReviews.filter((review)=> {
+        return review.id !== action.payload.id
+      })
+      newState.allReviews = filteredReviews;
+      newState.userReviews = filteredUserReviews;
+
+      const newByReviewId = {...newState.byReviewId};
+      delete newByReviewId[action.payload.id];
+      newState.byReviewId = newByReviewId;
+
+      return newState;
     }
 
     default:

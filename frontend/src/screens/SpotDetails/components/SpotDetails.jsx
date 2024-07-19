@@ -6,6 +6,7 @@ import './SpotDetails.css'
 import { getSpotReviewsThunk, getSpotsThunk } from '../../../store/spots';
 import PostReviewModal from './PostReview';
 import OpenModalButton from '../../../components/OpenModalButton/OpenModalButton';
+import DeleteReviewModal from './DeleteReviewModal';
 
 export default function SpotDetails() {
   const dispatch = useDispatch();
@@ -13,8 +14,7 @@ export default function SpotDetails() {
   const spot = useSelector((state) => state.spotState.byId[id])
   const reviews = useSelector((state) => state.spotState.allReviews)
   const sessionUser = useSelector((state) => state.session.user)
-
-  console.log(id)
+  // const { closeModal } = useModal();
 
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -49,6 +49,16 @@ export default function SpotDetails() {
     }
   }
 
+  console.log(spot)
+
+  // const handleReview = (e) => {
+  //   <OpenModalButton 
+  //     buttonText={"Post your review"}
+  //     modalComponent={<PostReviewModal spotId={id}/>}/>
+  //   closeModal();
+  //   getData();
+  // }
+
   const reverseReviews = reviews.slice().reverse();
 
   return (
@@ -58,17 +68,19 @@ export default function SpotDetails() {
         <p>{spot.city}, {spot.state}, {spot.country}</p>
       </div>
       <div className="images">
-        <div className="previewImg">
-        <img src={isLoaded && spot.SpotImages[0] ? spot.SpotImages[0].url : null} />
+        <div>
+          <img className='preview-img' src={isLoaded && spot.SpotImages[0] ? spot.SpotImages[0].url : null} />
         </div>
-        <div className="smallImageDivRow1">
-        <img src={isLoaded && spot.SpotImages[1] ? spot.SpotImages[1].url : null} />
-        <img src={isLoaded && spot.SpotImages[2]  ? spot.SpotImages[2].url : null} />
-        </div>
+        <div>
+          <div className="small-img-row-1">
+           <img className='small-img' src={isLoaded && spot.SpotImages[1] ? spot.SpotImages[1].url : null} />
+           <img className='small-img' src={isLoaded && spot.SpotImages[2]  ? spot.SpotImages[2].url : null} />
+          </div>
 
-        <div className="smallImageDivRow2">
-        <img src={isLoaded && spot.SpotImages[3] ? spot.SpotImages[3].url : null} />
-        <img src={isLoaded && spot.SpotImages[4] ? spot.SpotImages[4].url : null} />
+          <div className="small-img-row-2">
+            <img className='small-img' src={isLoaded && spot.SpotImages[3] ? spot.SpotImages[3].url : null} />
+            <img className='small-img' src={isLoaded && spot.SpotImages[4] ? spot.SpotImages[4].url : null} />
+          </div>
         </div>
       </div>
       <div className='spotDetailsInfo'>
@@ -78,10 +90,10 @@ export default function SpotDetails() {
         </div>
         <div className='spotDetailsReserve'>
           <div className='spotDetailsPriceAndRev'>
-            <div>
+            <span>
               <span className='spotPrice'>${spot.price} </span>
               <span > night</span>
-            </div>
+            </span>
             <span><FaStar /> {spot.numReviews === 0 ? "New" : `${spot.avgRating.toFixed(1)} · ${spot.numReviews === 1 ? `${spot.numReviews} Review`: `${spot.numReviews} Reviews`}`}</span>
           </div>
           <button 
@@ -95,10 +107,15 @@ export default function SpotDetails() {
        </div>
 
       {sessionUser && sessionUser.id !== spot.Owner.id ? 
-                  <OpenModalButton 
+                <div className='post-review-button' >
+                  <OpenModalButton
                   buttonText={"Post your review"}
                   modalComponent={<PostReviewModal spotId={id}/>}
-                /> : ""}
+                  preventDefault
+                  stopPropagation
+                  /> 
+                </div>
+                : ""}
 
       <div>
         {isUserOwner && !spot.numReviews ? "Be the first to post a review!" : 
@@ -109,6 +126,12 @@ export default function SpotDetails() {
             <p>
               {review.review}
             </p>
+            {sessionUser && review.User.id === sessionUser.id ? <OpenModalButton 
+                  buttonText={"Delete"}
+                  modalComponent={<DeleteReviewModal review={review}/>}
+                  preventDefault
+                  stopPropagation
+                /> : ""}
           </li>
         ))}
         </ul>
