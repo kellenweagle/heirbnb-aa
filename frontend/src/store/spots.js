@@ -8,6 +8,7 @@ const CREATE_SPOT = "spot/createSpot"
 const MANAGE_SPOT = "spot/manageSpot"
 const UPDATE_SPOT = "spot/UpdateSpot"
 const DELETE_SPOT = "spot/DeleteSpot"
+const POST_REVIEW = ""
 
 //ACTION CREATORS
 const getAllSpots = (spots) => ({
@@ -43,6 +44,11 @@ const manageSpot = (spots) => ({
 const deleteSpot = (deletedSpot) => ({
   type: DELETE_SPOT,
   payload: deletedSpot
+})
+
+const postReview = (review) => ({
+  type: POST_REVIEW,
+  payload: review
 })
 
 //THUNKS
@@ -179,6 +185,30 @@ export const getSpotReviewsThunk = (id) => async(dispatch) => {
   }
 }
 
+export const postReviewThunk = (reviewForm, spotId) => async(dispatch) => {
+  try {
+
+    console.log(reviewForm, "form in step 3")
+
+    const options = {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(reviewForm)
+    }
+
+    const res = await csrfFetch(`/api/spots/${spotId}/reviews`, options)
+    if(res.ok){
+      const data = await res.json();
+      dispatch(postReview(data))
+      return data;
+    } else{
+      throw res
+    }
+  } catch(e) {
+    return e;
+  }
+}
+
 //REDUCER
 
 const initialState = {
@@ -274,6 +304,17 @@ function spotsReducer(state = initialState, action) {
       return newState
 
     }
+
+    case POST_REVIEW: {
+      newState = {...state};
+
+      newState.allReviews.Reviews = [action.payload, ...newState.allReviews.Reviews];
+  
+      newState.byId = {...newState.byId, [action.payload.id]: action.payload}
+
+      return newState
+    }
+
     default:
       return state;
   }

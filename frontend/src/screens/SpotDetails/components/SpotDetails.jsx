@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaStar } from "react-icons/fa";
 import './SpotDetails.css'
 import { getSpotReviewsThunk, getSpotsThunk } from '../../../store/spots';
+import PostReviewModal from './PostReview';
+import OpenModalButton from '../../../components/OpenModalButton/OpenModalButton';
 
 export default function SpotDetails() {
   const dispatch = useDispatch();
@@ -12,7 +14,7 @@ export default function SpotDetails() {
   const reviews = useSelector((state) => state.spotState.allReviews)
   const sessionUser = useSelector((state) => state.session.user)
 
-  console.log(reviews)
+  console.log(id)
 
   const [isLoaded, setIsLoaded] = useState(false)
 
@@ -46,6 +48,8 @@ export default function SpotDetails() {
       return false;
     }
   }
+
+  const reverseReviews = reviews.slice().reverse();
 
   return (
     <div className='spotDetails'>
@@ -90,12 +94,16 @@ export default function SpotDetails() {
         <h2><FaStar /> {spot.numReviews === 0 ? "New" : `${spot.avgRating.toFixed(1)} · ${spot.numReviews === 1 ? `${spot.numReviews} Review`: `${spot.numReviews} Reviews`}`}</h2>
        </div>
 
-      {sessionUser && sessionUser.id !== spot.Owner.id ? <button className='post-review-button'>Post Your Review</button> : ""}
+      {sessionUser && sessionUser.id !== spot.Owner.id ? 
+                  <OpenModalButton 
+                  buttonText={"Post your review"}
+                  modalComponent={<PostReviewModal spotId={id}/>}
+                /> : ""}
 
       <div>
         {isUserOwner && !spot.numReviews ? "Be the first to post a review!" : 
           <ul className='reviews'>
-          {reviews.map((review, idx) => (
+          {reverseReviews.map((review, idx) => (
           <li key={`${idx}-${review.id}`}>
             <h3 className='reviewUserName'>{review.User.firstName}</h3>
             <p>
