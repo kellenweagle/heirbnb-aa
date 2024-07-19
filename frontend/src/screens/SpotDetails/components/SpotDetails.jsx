@@ -34,6 +34,10 @@ export default function SpotDetails() {
     )
   }
 
+  const handleReserve = () => {
+    alert("Feature coming soon");
+  }
+
   const isUserOwner = () => {
     // if the session user is not the spot owner, return true. otherwise return false.
     if(sessionUser.id !== spot.Owner.id) {
@@ -78,7 +82,7 @@ export default function SpotDetails() {
           </div>
           <button 
             className='reserveButton'
-            onClick={(e) => alert("Feature coming soon")}
+            onClick={handleReserve}
           >Reserve</button>
         </div>
       </div>
