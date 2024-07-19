@@ -4,66 +4,51 @@ h1 {
   color:  rgb(83, 83, 83);
 }
 
-form {
-  width: 60%;
+span {
+  width: 85%;
 }
 
-input {
-  margin-top: 1rem;
-  width: 98%;
-}
-
-.login-info {
+.delete-spot {
+  height: 20rem;
+  width: 25rem;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-#modal-content {
-  border-radius: 10px;
-}
-
-.login-form {
-  height: 20rem;
-  width: 25rem;
-  /* display: flex;
-  flex-direction: column;
-  justify-content: center; */
-}
-
-.login-button {
+.delete-yes {
   display: flex;
   justify-content: center;
-  width: 100%;
-  background-color: rgb(120, 191, 206);
+  align-items: center;
+  width: 85%;
+  height: 3rem;
+  background-color: red;  
   margin-top: 1rem;
-  margin-left: auto;
-  margin-right: auto;
   margin-bottom: 1rem;
   font-size: 14px;
   cursor: pointer;
   font-weight: bold;
-  color:  rgb(83, 83, 83);
+  color:  white;
   border: 1px solid rgb(83, 83, 83);
   box-shadow: 2px 2px 2px rgb(83, 83, 83);
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
-.demo-user {
+.delete-no {
   display: flex;
   justify-content: center;
-  width: 100%;
-  background-color: white;
-  margin-top: 1rem;
-  margin-left: auto;
-  margin-right: auto;
+  align-items: center;
+  width: 85%;
+  height: 3rem;
+  background-color: rgb(83, 83, 83);
   margin-bottom: 1rem;
   font-size: 14px;
   cursor: pointer;
   font-weight: bold;
-  color:  rgb(120, 191, 206);
+  color:  white;
   border: 1px solid rgb(83, 83, 83);
   box-shadow: 2px 2px 2px rgb(83, 83, 83);
   padding-top: 5px;

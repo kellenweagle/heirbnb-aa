@@ -2,13 +2,17 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { FaUserAlt } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
+import { IoIosMenu } from "react-icons/io";
 import * as sessionActions from '../../store/session';
 import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal/LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
+import './ProfileButton.css'
+import { useNavigate } from 'react-router-dom';
 
 function ProfileButton({ user }) {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef()
@@ -34,45 +38,61 @@ function ProfileButton({ user }) {
 
   const closeMenu = () => setShowMenu(false);
 
+  const manageSpots = (e) => {
+    e.preventDefault();
+    closeMenu();
+    navigate('/spots/manage');
+  }
+
   const logout = (e) => {
     e.preventDefault();
     dispatch(sessionActions.logout());
     closeMenu();
+    navigate('/');
   };
 
   const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
 
   return (
-    <>
-      <button onClick={toggleMenu}>
-        <FaUserAlt />
+    <div>
+      <button className='profileButton' onClick={toggleMenu}>
+        <IoIosMenu />
+        <div className='profileIcon'>
+          <FaUserCircle />
+        </div>
       </button>
-      <ul className={ulClassName} ref={ulRef}>
+      <div className={ulClassName} id='profileMenu' ref={ulRef}>
       {user ? (
-          <>
-            <li>{user.username}</li>
-            <li>{user.firstName} {user.lastName}</li>
-            <li>{user.email}</li>
-            <li>
-              <button onClick={logout}>Log Out</button>
-            </li>
-          </>
+          <div>
+            <div>Hello, {user.firstName}</div>
+            <div>{user.email}</div>
+            <div>
+              <button className='manageSpotsButton' onClick={manageSpots}>Manage Spots</button>
+            </div>
+            <div>
+              <button className='logoutButton' onClick={logout}>Log Out</button>
+            </div>
+          </div>
         ) : (
-          <>
-            <OpenModalMenuItem
-              itemText="Log In"
-              onItemClick={closeMenu}
-              modalComponent={<LoginFormModal />}
-            />
-            <OpenModalMenuItem
-              itemText="Sign Up"
-              onItemClick={closeMenu}
-              modalComponent={<SignupFormModal />}
-            />
-          </>
+          <div className='not-logged'>
+            <div className="login-profile">
+              <OpenModalMenuItem
+                itemText="Log In"
+                onItemClick={closeMenu}
+                modalComponent={<LoginFormModal />}
+              />
+            </div>
+            <div className="signup-button">
+              <OpenModalMenuItem
+                itemText="Sign Up"
+                onItemClick={closeMenu}
+                modalComponent={<SignupFormModal />}
+              />
+            </div>
+          </div>
         )}
-      </ul>
-    </>
+      </div>
+    </div>
   );
 }
 
