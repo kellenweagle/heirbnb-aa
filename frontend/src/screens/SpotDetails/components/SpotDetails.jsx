@@ -49,15 +49,15 @@ export default function SpotDetails() {
     }
   }
 
-  console.log(spot)
+  const formatDateString = (dateString) => {
+    const date = new Date(dateString);
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-  // const handleReview = (e) => {
-  //   <OpenModalButton 
-  //     buttonText={"Post your review"}
-  //     modalComponent={<PostReviewModal spotId={id}/>}/>
-  //   closeModal();
-  //   getData();
-  // }
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${month} ${year}`
+  } 
 
   const reverseReviews = reviews.slice().reverse();
 
@@ -123,6 +123,9 @@ export default function SpotDetails() {
           {reverseReviews.map((review, idx) => (
           <li key={`${idx}-${review.id}`}>
             <h3 className='reviewUserName'>{review.User.firstName}</h3>
+            <p>
+              {formatDateString(review.createdAt)}
+            </p>
             <p>
               {review.review}
             </p>
