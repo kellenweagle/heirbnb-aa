@@ -7,6 +7,14 @@ h1 {
   color: #222;
 }
 
+h3 {
+  margin-bottom: 0;
+}
+
+ul {
+  list-style-type: none;
+}
+
 .spotDetails {
   max-width: 1000px;
   margin-left: auto;

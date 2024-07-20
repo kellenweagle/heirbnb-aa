@@ -27,9 +27,6 @@ input {
 .login-form {
   height: 20rem;
   width: 25rem;
-  /* display: flex;
-  flex-direction: column;
-  justify-content: center; */
 }
 
 .login-button {
