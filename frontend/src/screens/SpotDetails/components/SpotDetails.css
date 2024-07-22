@@ -57,7 +57,7 @@ ul {
   box-shadow: 2px 2px 2px rgb(83, 83, 83);
 }
 
-.post-review-button {
+.post-review-button button, .delete-review-button button {
   background-color: rgb(120, 191, 206);
   width: 300px;
   height: 30px;

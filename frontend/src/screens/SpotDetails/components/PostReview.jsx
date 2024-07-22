@@ -1,10 +1,11 @@
 // frontend/src/components/LoginFormModal/LoginFormModal.jsx
 
 import './PostReview.css'
-import { getSpotReviewsThunk, postReviewThunk } from '../../../store/spots';
+import { getSpotReviewsThunk, getSpotsThunk, postReviewThunk } from '../../../store/spots';
 import { useDispatch, useSelector } from 'react-redux';
 import { useModal } from '../../../context/Modal';
 import { useState } from 'react';
+import { FaRegStar } from "react-icons/fa";
 
 
 function PostReviewModal({spotId}) {
@@ -12,13 +13,19 @@ function PostReviewModal({spotId}) {
   const { closeModal } = useModal();
   const sessionUser = useSelector((state) => state.session.user)
 
-  console.log(spotId, "This is in post review")
+  const [rating, setRating] = useState(null);
+  const [hoverVal, setHoverVal] = useState(null);
+
+  const colors = {
+    black: '#000000',
+    grey: '#A9A9A9',
+  }
 
   const [form, setForm] = useState({
     userId: sessionUser.id,
     spotId: spotId,
     review: "",
-    stars: 3 
+    stars: rating
   })
 
   const updateForm = (val, key) => {
@@ -33,11 +40,23 @@ function PostReviewModal({spotId}) {
     e.preventDefault();
 
     await dispatch(postReviewThunk(form, spotId))
+    await dispatch(getSpotsThunk())
+    await dispatch(getSpotReviewsThunk(spotId))
 
     closeModal()
-
-    await dispatch(getSpotReviewsThunk(spotId))
   };
+
+  const handleClickStar = (value) => {
+    updateForm(value, "stars")
+  }
+
+  const handleMouseOverStar = (value) => {
+    setHoverVal(value)
+  }
+
+  const handleMouseLeaveStar = () => {
+    setHoverVal(undefined)
+  }
 
   return (
     <div
@@ -51,6 +70,20 @@ function PostReviewModal({spotId}) {
             value={form.review}
             onChange={(e) => updateForm(e.target.value, "review")}
           />
+        </div>
+        <div>
+          {[...Array(5)].map((_star, idx) => (
+            <FaRegStar
+              className='star'
+              key={idx}
+              size={25}
+              onChange={(e => setRating(e.target.value))}
+              color={(hoverVal || rating) > idx ? colors.black : colors.grey}
+              onClick={() => handleClickStar(idx + 1)}
+              onMouseOver={() => handleMouseOverStar(idx + 1)}
+              onMouseLeave={() => handleMouseLeaveStar}
+            />
+          ))}
         </div>
         <button 
         disabled={form.review.length < 10}
