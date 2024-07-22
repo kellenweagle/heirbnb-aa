@@ -194,7 +194,7 @@ export const getSpotReviewsThunk = (id) => async(dispatch) => {
 export const postReviewThunk = (reviewForm, spotId) => async(dispatch) => {
   try {
 
-    console.log(reviewForm, "form in step 3")
+    console.log(reviewForm)
 
     const options = {
       method: 'POST',
@@ -336,9 +336,9 @@ function spotsReducer(state = initialState, action) {
     case POST_REVIEW: {
       newState = {...state};
 
-      newState.allReviews.Reviews = [action.payload, ...newState.allReviews.Reviews];
+      newState.allReviews.Reviews = [action.payload, ...newState.allReviews];
   
-      newState.byId = {...newState.byId, [action.payload.id]: action.payload}
+      newState.byReviewId[action.payload.id] = action.payload;
 
       return newState
     }

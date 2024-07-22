@@ -17,18 +17,29 @@ export default function SpotDetails() {
   // const { closeModal } = useModal();
 
   const [isLoaded, setIsLoaded] = useState(false)
+  const [hasReviewed, setHasReviewed] = useState(false)
 
   useEffect(() => {
     const getData = async() => {
       await dispatch(getSpotsThunk());
       await dispatch(getSpotReviewsThunk(id))
       setIsLoaded(true);
-    }
 
-    if(!isLoaded || spot === undefined) {
-      getData()
-    } 
-  }, [dispatch, id, isLoaded, spot])
+    }
+  
+  if(!isLoaded || spot === undefined) {
+    getData()
+  }
+
+  if(sessionUser) {
+    for(let review of reviews) {
+      if(review.userId === sessionUser.id) {
+        setHasReviewed(true);
+      }
+    }}
+  }, [dispatch, id, isLoaded, spot, hasReviewed, reviews, sessionUser]);
+
+
 
   if(!isLoaded || spot === undefined) {
     return (
@@ -106,7 +117,7 @@ export default function SpotDetails() {
         <h2><FaStar /> {spot.numReviews === 0 ? "New" : `${spot.avgRating.toFixed(1)} · ${spot.numReviews === 1 ? `${spot.numReviews} Review`: `${spot.numReviews} Reviews`}`}</h2>
        </div>
 
-      {sessionUser && sessionUser.id !== spot.Owner.id ? 
+      {sessionUser && sessionUser.id !== spot.Owner.id && hasReviewed === false ? 
                 <div className='post-review-button' >
                   <OpenModalButton
                   buttonText={"Post your review"}
@@ -129,12 +140,16 @@ export default function SpotDetails() {
             <p>
               {review.review}
             </p>
-            {sessionUser && review.User.id === sessionUser.id ? <OpenModalButton 
-                  buttonText={"Delete"}
-                  modalComponent={<DeleteReviewModal review={review}/>}
-                  preventDefault
-                  stopPropagation
-                /> : ""}
+            {sessionUser && review.User.id === sessionUser.id ?
+              <div className='delete-review-button'>
+                <OpenModalButton 
+                 buttonText={"Delete"}
+                 modalComponent={<DeleteReviewModal review={review} setHasReviewed={setHasReviewed}/>}
+                 preventDefault
+                 stopPropagation
+               /> 
+               </div>
+               : ""}
           </li>
         ))}
         </ul>

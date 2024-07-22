@@ -4,23 +4,24 @@ import './PostReview.css'
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../../context/Modal';
 import './DeleteReviewModal.css'
-import { deleteReviewThunk, getSpotReviewsThunk } from '../../../store/spots';
+import { deleteReviewThunk, getSpotReviewsThunk, getSpotsThunk } from '../../../store/spots';
 
 
-function DeleteReviewModal({review}) {
+function DeleteReviewModal({review, setHasReviewed}) {
   const dispatch = useDispatch();
   const { closeModal } = useModal();
 
-  console.log(review)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     await dispatch(deleteReviewThunk(review))
+    await dispatch(getSpotsThunk())
+    await dispatch(getSpotReviewsThunk(review.spotId))
+    setHasReviewed(false);
 
     closeModal()
 
-    await dispatch(getSpotReviewsThunk(review.spotId))
   };
 
   return (
