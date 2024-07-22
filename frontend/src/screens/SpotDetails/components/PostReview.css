@@ -11,4 +11,12 @@
 
 .spot-review-form {
   padding: 0 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.star-div {
+  display: flex;
+  align-items: center;
 }

@@ -71,7 +71,7 @@ function PostReviewModal({spotId}) {
             onChange={(e) => updateForm(e.target.value, "review")}
           />
         </div>
-        <div>
+        <div className='star-div'>
           {[...Array(5)].map((_star, idx) => (
             <FaRegStar
               className='star'
@@ -82,8 +82,8 @@ function PostReviewModal({spotId}) {
               onClick={() => handleClickStar(idx + 1)}
               onMouseOver={() => handleMouseOverStar(idx + 1)}
               onMouseLeave={() => handleMouseLeaveStar}
-            />
-          ))}
+            /> 
+          ))} Stars
         </div>
         <button 
         disabled={form.review.length < 10}
